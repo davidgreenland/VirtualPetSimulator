@@ -3,33 +3,21 @@
 public abstract class Pet
 {
     public string Name { get; }
-    public int Happiness { get; set; }
     public int Energy { get; set; }
-    public int Bladder { get; set; } = 1;
-    public int Hunger { get; set; } = 1;
-    public int Thirst { get; set; } = 1;
+    public int Hunger { get; set; }
 
-    public Pet(string name, int happiness = 10, int energy = 10)
+    public Pet(string name, int energy = 10, int hunger = 0)
     {
         Name = name;
-        Happiness = happiness;
         Energy = energy;
+        Hunger = hunger;
     }
 
-    public void Eat(int foodValue)
+    public void Eat()
     {
-    }
-
-    public void Play()
-    {
-    }
-
-    public void Sleep()
-    {
-    }
-
-    public void Wee()
-    {
-
+        if (Hunger > 0)
+        {
+            --Hunger;
+        }
     }
 }
