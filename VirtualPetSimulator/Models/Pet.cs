@@ -4,7 +4,18 @@ public abstract class Pet
 {
     public string Name { get; }
     public int Energy { get; set; }
-    public int Hunger { get; set; }
+
+    private int _hunger;
+    public int Hunger
+    {
+        get => _hunger;
+        set
+        {
+            var max = 10;
+            var min = 0;
+            _hunger = Math.Clamp(value, min, max);
+        }
+    }
 
     public Pet(string name, int energy = 10, int hunger = 0)
     {
@@ -17,7 +28,7 @@ public abstract class Pet
     {
         if (Hunger > 0)
         {
-            Hunger -= foodAmount;
+           Hunger -= foodAmount;
         }
     }
 }
