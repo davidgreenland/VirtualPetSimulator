@@ -9,11 +9,23 @@ public class CatPetTests
     public void Eat_WhenNotHungry_DoesNotEat()
     {
         var hasFullEnergy = 10;
-        var isFull = 0;
-        var pet = new CatPet("Simon", hasFullEnergy, isFull);
+        var isNotHungry = 0;
+        var pet = new CatPet("Simon", hasFullEnergy, isNotHungry);
 
         pet.Eat();
 
-        Assert.That(pet.Hunger, Is.EqualTo(isFull));
+        Assert.That(pet.Hunger, Is.EqualTo(isNotHungry));
+    }
+
+    [Test]
+    public void Eat_WhenHasHunger_DecrementsHunger()
+    {
+        var hasFullEnergy = 10;
+        var mediumHunger = 5;
+        var pet = new CatPet("Simon", hasFullEnergy, mediumHunger);
+
+        pet.Eat();
+
+        Assert.That(pet.Hunger, Is.EqualTo(mediumHunger - 1));
     }
 }
