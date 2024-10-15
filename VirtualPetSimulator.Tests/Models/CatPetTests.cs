@@ -28,4 +28,17 @@ public class CatPetTests
 
         Assert.That(pet.Hunger, Is.EqualTo(mediumHunger - 1));
     }
+
+    [Test]
+    public void Eat_CanDecrementHungerByMoreThan1()
+    {
+        var hasFullEnergy = 10;
+        var mediumHunger = 5;
+        var burger = 4;
+        var pet = new CatPet("Simon", hasFullEnergy, mediumHunger);
+
+        pet.Eat(burger);
+
+        Assert.That(pet.Hunger, Is.EqualTo(mediumHunger - 4));
+    }
 }
