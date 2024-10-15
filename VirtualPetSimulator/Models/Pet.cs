@@ -13,11 +13,11 @@ public abstract class Pet
         Hunger = hunger;
     }
 
-    public void Eat()
+    public void Eat(int foodAmount = 1)
     {
         if (Hunger > 0)
         {
-            --Hunger;
+            Hunger -= foodAmount;
         }
     }
 }
