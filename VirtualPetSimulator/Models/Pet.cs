@@ -7,7 +7,17 @@ public abstract class Pet
 {
     private readonly ITimeService _timeService;
     public string Name { get; }
-    public int Energy { get; private set; }
+    public int Happiness { get; private set; }
+
+    private int _energy;
+    public int Energy
+    {
+        get => _energy;
+        private set
+        {
+            _energy = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
+        }
+    }
 
     private int _hunger;
     public int Hunger
@@ -19,12 +29,13 @@ public abstract class Pet
         }
     }
 
-    public Pet(ITimeService timeService, string name, int energy = 10, int hunger = 0)
+    public Pet(ITimeService timeService, string name, int energy = 6, int hunger = 6, int happiness = 6)
     {
         _timeService = timeService;
         Name = name;
         Energy = energy;
         Hunger = hunger;
+        Happiness = happiness;
     }
 
     public async Task Eat(int foodAmount = 1)

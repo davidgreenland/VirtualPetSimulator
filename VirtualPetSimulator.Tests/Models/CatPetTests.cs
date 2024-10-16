@@ -49,7 +49,7 @@ public class CatPetTests
     }
 
     [Test]
-    public async Task Eat_WillNotLowerHungerPastZero()
+    public async Task Eat_WillNotLowerHungerPastMinimum()
     {
         var catFood = 3;
 
@@ -84,5 +84,16 @@ public class CatPetTests
         _pet.Sleep(sleepValue);
 
         Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + sleepValue));
+    }
+
+    [Test]
+    public void Sleep_WillNotRaiseEnergyBeyondMax()
+    {
+        var sleepValue = 5;
+
+        _pet.Sleep(sleepValue);
+        _pet.Sleep(sleepValue);
+
+        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MAX));
     }
 }
