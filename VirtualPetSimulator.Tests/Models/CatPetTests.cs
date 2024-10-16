@@ -54,12 +54,34 @@ public class CatPetTests
     }
 
     [Test]
-    public void Eat_WhenEnergyNotMax_ShouldIncreaseEnergyByOne(int energy)
+    public void Eat_WhenEnergyNotMax_ShouldIncreaseEnergyByOne()
     {
         var catFood = 3;
 
         _pet.Eat(catFood);
 
         Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
+    }
+
+    [Test]
+    public void Eat_ShouldNotRaiseEnergyAboveMax()
+    {
+        var fullEnergyPet = new CatPet("Joseph", AttributeValue.MAX, AttributeValue.MEDIUM);
+        var bigMeal = 9;
+
+        fullEnergyPet.Eat(bigMeal);
+
+        Assert.That(fullEnergyPet.Energy, Is.EqualTo(AttributeValue.MAX));
+    }
+
+    [Test]
+    public void Eat_IfHungerMinWhenFed_EnergyDoesNotIncrease()
+    {
+        var notHungryPet = new CatPet("Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var littleMeal = 1;
+
+        notHungryPet.Eat(littleMeal);
+
+        Assert.That(notHungryPet.Energy, Is.EqualTo(AttributeValue.MEDIUM));
     }
 }

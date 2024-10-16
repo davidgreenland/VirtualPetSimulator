@@ -5,15 +5,26 @@ namespace VirtualPetSimulator.Models;
 public abstract class Pet
 {
     public string Name { get; }
-    public int Energy { get; set; }
+
+    public bool HasEatenSinceSleeping { get; private set; } = false;
 
     private int _hunger;
     public int Hunger
     {
         get => _hunger;
-        set
+        private set
         {
             _hunger = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
+        }
+    }
+
+    private int _energy;
+    public int Energy
+    {
+        get => _energy;
+        private set
+        {
+            _energy = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
         }
     }
 
@@ -26,6 +37,13 @@ public abstract class Pet
 
     public void Eat(int foodAmount = 1)
     {
+        if (Hunger == AttributeValue.MIN) return;
+
         Hunger -= foodAmount;
+
+        if (!HasEatenSinceSleeping)
+        {
+            Energy += 1;
+        }
     }
 }
