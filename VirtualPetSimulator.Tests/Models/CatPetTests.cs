@@ -11,7 +11,7 @@ public class CatPetTests
     [SetUp]
     public void SetUp()
     {
-        _pet = new CatPet("Simon", AttributeValue.MIN, AttributeValue.MEDIUM);
+        _pet = new CatPet("Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
     }
 
     [Test]
@@ -51,5 +51,15 @@ public class CatPetTests
         _pet.Eat(catFood);
 
         Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MIN));
+    }
+
+    [Test]
+    public void Eat_WhenEnergyNotMax_ShouldIncreaseEnergyByOne(int energy)
+    {
+        var catFood = 3;
+
+        _pet.Eat(catFood);
+
+        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
     }
 }
