@@ -1,4 +1,6 @@
-﻿namespace VirtualPetSimulator.Models;
+﻿using VirtualPetSimulator.Helpers;
+
+namespace VirtualPetSimulator.Models;
 
 public abstract class Pet
 {
@@ -11,7 +13,7 @@ public abstract class Pet
         get => _hunger;
         set
         {
-            _hunger = Math.Clamp(value, min: 0, max: 10);
+            _hunger = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
         }
     }
 
