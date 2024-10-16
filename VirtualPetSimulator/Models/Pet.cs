@@ -30,7 +30,6 @@ public abstract class Pet
     public async Task Eat(int foodAmount = 1)
     {
         Hunger -= foodAmount;
-
         await _timeService.Delay(foodAmount * 1000);
     }
 }
