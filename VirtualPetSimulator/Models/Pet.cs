@@ -32,4 +32,9 @@ public abstract class Pet
         Hunger -= foodAmount;
         await _timeService.Delay(foodAmount * 1000);
     }
+
+    public void Sleep()
+    {
+        Energy += 1;
+    }
 }

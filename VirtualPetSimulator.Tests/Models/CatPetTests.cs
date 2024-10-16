@@ -57,4 +57,14 @@ public class CatPetTests
 
         Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MIN));
     }
+
+    [Test]
+    public void Sleep_WhenNotTired_DoesNotSleep()
+    {
+        var pet = new CatPet(_timeService.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
+
+        _pet.Sleep();
+
+        Assert.That(pet.Energy, Is.EqualTo(AttributeValue.MAX));
+    }
 }
