@@ -1,87 +1,60 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Helpers;
+using Moq;
+using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Models;
 
 public class CatPetTests
 {
+    private Mock<ITimeService> _timeService;
     private CatPet _pet;
 
     [SetUp]
     public void SetUp()
     {
-        _pet = new CatPet("Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
+        _timeService = new Mock<ITimeService>();
+
+        _timeService.Setup(mock => mock.Delay(It.IsAny<int>())).Returns(Task.CompletedTask);
+        _pet = new CatPet(_timeService.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
     }
 
     [Test]
-    public void Eat_WhenNotHungry_DoesNotEat()
+    public async Task Eat_WhenNotHungry_DoesNotEat()
     {
-        var pet = new CatPet("Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var pet = new CatPet(_timeService.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+
+        await _pet.Eat();
 
         Assert.That(pet.Hunger, Is.EqualTo(AttributeValue.MIN));
     }
 
     [Test]
-    public void Eat_WhenHasHunger_DecrementsHunger()
+    public async Task Eat_WhenHasHunger_DecrementsHunger()
     {
-        _pet.Eat();
+        await _pet.Eat();
 
         Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - 1));
     }
 
     [Test]
-    public void Eat_CanDecrementHungerByMoreThan1()
+    public async Task Eat_CanDecrementHungerByMoreThan1()
     {
         var whiskas = 4;
 
-        _pet.Eat(whiskas);
+        await _pet.Eat(whiskas);
 
         Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - whiskas));
     }
 
-    [TestCase()]
-    public void Eat_WillNotLowerHungerPastZero()
+    [Test]
+    public async Task Eat_WillNotLowerHungerPastZero()
     {
         var catFood = 3;
 
-        _pet.Eat(catFood);
-        _pet.Eat(catFood);
-        _pet.Eat(catFood);
-        _pet.Eat(catFood);
+        await Task.WhenAll(_pet.Eat(catFood), _pet.Eat(catFood), _pet.Eat(catFood), _pet.Eat(catFood));
 
         Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MIN));
-    }
-
-    [Test]
-    public void Eat_WhenEnergyNotMax_ShouldIncreaseEnergyByOne()
-    {
-        var catFood = 3;
-
-        _pet.Eat(catFood);
-
-        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
-    }
-
-    [Test]
-    public void Eat_ShouldNotRaiseEnergyAboveMax()
-    {
-        var fullEnergyPet = new CatPet("Joseph", AttributeValue.MAX, AttributeValue.MEDIUM);
-        var bigMeal = 9;
-
-        fullEnergyPet.Eat(bigMeal);
-
-        Assert.That(fullEnergyPet.Energy, Is.EqualTo(AttributeValue.MAX));
-    }
-
-    [Test]
-    public void Eat_IfHungerMinWhenFed_EnergyDoesNotIncrease()
-    {
-        var notHungryPet = new CatPet("Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
-        var littleMeal = 1;
-
-        notHungryPet.Eat(littleMeal);
-
-        Assert.That(notHungryPet.Energy, Is.EqualTo(AttributeValue.MEDIUM));
     }
 }

@@ -1,12 +1,13 @@
 ﻿using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Models;
 
 public abstract class Pet
 {
+    private readonly ITimeService _timeService;
     public string Name { get; }
-
-    public bool HasEatenSinceSleeping { get; private set; } = false;
+    public int Energy { get; private set; }
 
     private int _hunger;
     public int Hunger
@@ -18,32 +19,18 @@ public abstract class Pet
         }
     }
 
-    private int _energy;
-    public int Energy
+    public Pet(ITimeService timeService, string name, int energy = 10, int hunger = 0)
     {
-        get => _energy;
-        private set
-        {
-            _energy = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
-        }
-    }
-
-    public Pet(string name, int energy = 10, int hunger = 0)
-    {
+        _timeService = timeService;
         Name = name;
         Energy = energy;
         Hunger = hunger;
     }
 
-    public void Eat(int foodAmount = 1)
+    public async Task Eat(int foodAmount = 1)
     {
-        if (Hunger == AttributeValue.MIN) return;
-
         Hunger -= foodAmount;
 
-        if (!HasEatenSinceSleeping)
-        {
-            Energy += 1;
-        }
+        await _timeService.Delay(foodAmount * 1000);
     }
 }
