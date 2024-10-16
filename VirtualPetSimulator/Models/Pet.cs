@@ -33,8 +33,8 @@ public abstract class Pet
         await _timeService.Delay(foodAmount * 1000);
     }
 
-    public void Sleep()
+    public void Sleep(int sleepValue = 1)
     {
-        Energy += 1;
+        Energy += sleepValue;
     }
 }

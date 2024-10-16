@@ -67,4 +67,22 @@ public class CatPetTests
 
         Assert.That(pet.Energy, Is.EqualTo(AttributeValue.MAX));
     }
+
+    [Test]
+    public void Sleep_WhenEnergyNotMax_IncrementsEnergy()
+    {
+        _pet.Sleep();
+
+        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
+    }
+
+    [Test]
+    public void Sleep_CanIncrementEnergyByMoreThan1()
+    {
+        var sleepValue = 3;
+
+        _pet.Sleep(sleepValue);
+
+        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + sleepValue));
+    }
 }
