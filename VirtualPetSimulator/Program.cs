@@ -1,1 +1,22 @@
-﻿
+﻿using VirtualPetSimulator.Models;
+
+Console.WriteLine(CatAscii.PlayfulCat);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.SleepingCat);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.PeepingCat);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.SittingCat);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.SittingCat2);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.LayingCat);
+Console.ReadKey();
+Console.Clear();
+Console.WriteLine(CatAscii.CatInBox);
+Console.ReadKey();
