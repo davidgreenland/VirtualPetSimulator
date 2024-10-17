@@ -1,4 +1,5 @@
 ﻿using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Models;
@@ -6,6 +7,7 @@ namespace VirtualPetSimulator.Models;
 public abstract class Pet
 {
     private readonly ITimeService _timeService;
+    private readonly IValidator _validator;
     public string Name { get; }
 
     private int _energy;
@@ -38,9 +40,10 @@ public abstract class Pet
         }
     }
 
-    public Pet(ITimeService timeService, string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
+    public Pet(ITimeService timeService, IValidator validator, string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
     {
         _timeService = timeService;
+        _validator = validator;
         Name = name;
         Energy = energy;
         Hunger = hunger;
@@ -49,6 +52,8 @@ public abstract class Pet
 
     public async Task<int> Eat(int foodAmount = 1)
     {
+        _validator.ValidateNonNegative(foodAmount, nameof(foodAmount));
+
         int portionsEaten;
         if (Hunger == AttributeValue.MIN)
         {
@@ -56,28 +61,49 @@ public abstract class Pet
             return portionsEaten;
         }
 
-        var eatingOperation = _timeService.Delay(foodAmount * 1000);
-
         portionsEaten = Math.Min(foodAmount, Hunger);
-        Hunger -= foodAmount;
+        var eatingOperation = _timeService.RunOperation(portionsEaten * 1000);
+
+        Hunger -= portionsEaten;
         await eatingOperation;
 
         return portionsEaten;
     }
 
-    public async Task Sleep(int sleepValue = 1)
+    public async Task<int> Sleep(int sleepValue = 1)
     {
+        _validator.ValidateNonNegative(sleepValue, nameof(sleepValue));
+
+        int amountSlept;
         if (Energy == AttributeValue.MAX)
         {
-            return;
+            amountSlept = 0;
+            return amountSlept;
         }
 
+        amountSlept = Math.Min(sleepValue, AttributeValue.MAX - Energy);
+        var sleepOperation = _timeService.RunOperation(amountSlept * 1000);
+
         Energy += sleepValue;
-        await _timeService.Delay(sleepValue * 1000);
+        await sleepOperation;
+
+        return amountSlept;
     }
 
-    public void Play(int playValue = 1)
+    public async Task<int> Play(int playValue = 1)
     {
-        Happiness += playValue;
+        int happinessIncrease;
+        if (Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
+        {
+            happinessIncrease = 0;
+            return happinessIncrease;
+        }
+        happinessIncrease = Math.Min(playValue, AttributeValue.MAX - Happiness);
+        var playOperation = _timeService.RunOperation(playValue * 1000);
+
+        Happiness += happinessIncrease;
+        await playOperation;
+
+        return happinessIncrease;
     }
 }
