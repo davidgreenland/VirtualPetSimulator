@@ -26,10 +26,10 @@ public class CatPetTests
     {
         var notHungryPet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
 
-        await notHungryPet.Eat();
+        var portionsEaten = notHungryPet.Eat();
 
         Assert.That(notHungryPet.Hunger, Is.EqualTo(AttributeValue.MIN));
-        _timeServiceMock.Verify(x => x.Delay(It.IsAny<int>()), Times.Never());
+        Assert.That(await portionsEaten, Is.EqualTo(0));
     }
 
     [Test]
@@ -58,6 +58,19 @@ public class CatPetTests
         await Task.WhenAll(_testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood));
 
         Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MIN));
+    }
+
+    [TestCase(1, 1)]
+    [TestCase(2, 2)]
+    [TestCase(4, 4)]
+    [TestCase(7, 6)]
+    [TestCase(11, 6)]
+    [TestCase(23, 6)]
+    public async Task Eat_WhenFeedingDefaultPet_ReturnsPortionsEaten(int foodValue, int expected)
+    {
+        var portionsEaten = _testCatPet.Eat(foodValue);
+
+        Assert.That(await portionsEaten, Is.EqualTo(expected));
     }
 
     [Test]

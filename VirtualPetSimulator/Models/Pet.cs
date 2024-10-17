@@ -47,15 +47,22 @@ public abstract class Pet
         Happiness = happiness;
     }
 
-    public async Task Eat(int foodAmount = 1)
+    public async Task<int> Eat(int foodAmount = 1)
     {
+        int portionsEaten;
         if (Hunger == AttributeValue.MIN)
         {
-            return;
+            portionsEaten = 0;
+            return portionsEaten;
         }
 
+        var eatingOperation = _timeService.Delay(foodAmount * 1000);
+
+        portionsEaten = Math.Min(foodAmount, Hunger);
         Hunger -= foodAmount;
-        await _timeService.Delay(foodAmount * 1000);
+        await eatingOperation;
+
+        return portionsEaten;
     }
 
     public async Task Sleep(int sleepValue = 1)
