@@ -49,8 +49,14 @@ public abstract class Pet
         await _timeService.Delay(foodAmount * 1000);
     }
 
-    public void Sleep(int sleepValue = 1)
+    public async Task Sleep(int sleepValue = 1)
     {
+        if (Energy == AttributeValue.MAX)
+        {
+            return;
+        }
+
         Energy += sleepValue;
+        await _timeService.Delay(sleepValue * 1000);
     }
 }

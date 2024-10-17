@@ -60,14 +60,14 @@ public class CatPetTests
     }
 
     [Test]
-    public void Sleep_WhenNotTired_DoesNotSleep()
+    public async Task Sleep_WhenNotTired_DoesNotSleep()
     {
-        var maxEnergyCat = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
+        var maxEnergyCat = new CatPet(_timeServiceMock.Object, "Joseph", energy: AttributeValue.MAX, AttributeValue.MIN);
 
-        maxEnergyCat.Sleep();
+        await maxEnergyCat.Sleep();
 
         Assert.That(maxEnergyCat.Energy, Is.EqualTo(AttributeValue.MAX));
-
+        _timeServiceMock.Verify(x => x.Delay(It.IsAny<int>()), Times.Never());
     }
 
     [Test]
