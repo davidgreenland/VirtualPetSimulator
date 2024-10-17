@@ -40,6 +40,11 @@ public abstract class Pet
 
     public async Task Eat(int foodAmount = 1)
     {
+        if (Hunger == AttributeValue.MIN)
+        {
+            return;
+        }
+
         Hunger -= foodAmount;
         await _timeService.Delay(foodAmount * 1000);
     }

@@ -23,11 +23,12 @@ public class CatPetTests
     [Test]
     public async Task Eat_WhenNotHungry_DoesNotEat()
     {
-        var pet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var notHungryPet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
 
-        await _pet.Eat();
+        await notHungryPet.Eat();
 
-        Assert.That(pet.Hunger, Is.EqualTo(AttributeValue.MIN));
+        Assert.That(notHungryPet.Hunger, Is.EqualTo(AttributeValue.MIN));
+        _timeServiceMock.Verify(x => x.Delay(It.IsAny<int>()), Times.Never());
     }
 
     [Test]
