@@ -8,22 +8,22 @@ namespace VirtualPetSimulator.Tests.Models;
 
 public class CatPetTests
 {
-    private Mock<ITimeService> _timeService;
+    private Mock<ITimeService> _timeServiceMock;
     private CatPet _pet;
 
     [SetUp]
     public void SetUp()
     {
-        _timeService = new Mock<ITimeService>();
+        _timeServiceMock = new Mock<ITimeService>();
 
-        _timeService.Setup(mock => mock.Delay(It.IsAny<int>())).Returns(Task.CompletedTask);
-        _pet = new CatPet(_timeService.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
+        _timeServiceMock.Setup(mock => mock.Delay(It.IsAny<int>())).Returns(Task.CompletedTask);
+        _pet = new CatPet(_timeServiceMock.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
     }
 
     [Test]
     public async Task Eat_WhenNotHungry_DoesNotEat()
     {
-        var pet = new CatPet(_timeService.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var pet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
 
         await _pet.Eat();
 
@@ -61,7 +61,7 @@ public class CatPetTests
     [Test]
     public void Sleep_WhenNotTired_DoesNotSleep()
     {
-        var pet = new CatPet(_timeService.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
+        var pet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
 
         _pet.Sleep();
 
