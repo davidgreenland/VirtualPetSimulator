@@ -9,7 +9,7 @@ namespace VirtualPetSimulator.Tests.Models;
 public class CatPetTests
 {
     private Mock<ITimeService> _timeServiceMock;
-    private CatPet _pet;
+    private CatPet _testCatPet;
 
     [SetUp]
     public void SetUp()
@@ -17,7 +17,7 @@ public class CatPetTests
         _timeServiceMock = new Mock<ITimeService>();
 
         _timeServiceMock.Setup(mock => mock.Delay(It.IsAny<int>())).Returns(Task.CompletedTask);
-        _pet = new CatPet(_timeServiceMock.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
+        _testCatPet = new CatPet(_timeServiceMock.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
     }
 
     [Test]
@@ -34,9 +34,9 @@ public class CatPetTests
     [Test]
     public async Task Eat_WhenHasHunger_DecrementsHunger()
     {
-        await _pet.Eat();
+        await _testCatPet.Eat();
 
-        Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - 1));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - 1));
     }
 
     [Test]
@@ -44,9 +44,9 @@ public class CatPetTests
     {
         var whiskas = 4;
 
-        await _pet.Eat(whiskas);
+        await _testCatPet.Eat(whiskas);
 
-        Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - whiskas));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - whiskas));
     }
 
     [Test]
@@ -54,27 +54,28 @@ public class CatPetTests
     {
         var catFood = 3;
 
-        await Task.WhenAll(_pet.Eat(catFood), _pet.Eat(catFood), _pet.Eat(catFood), _pet.Eat(catFood));
+        await Task.WhenAll(_testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood));
 
-        Assert.That(_pet.Hunger, Is.EqualTo(AttributeValue.MIN));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MIN));
     }
 
     [Test]
     public void Sleep_WhenNotTired_DoesNotSleep()
     {
-        var pet = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
+        var maxEnergyCat = new CatPet(_timeServiceMock.Object, "Joseph", AttributeValue.MAX, AttributeValue.MIN);
 
-        _pet.Sleep();
+        maxEnergyCat.Sleep();
 
-        Assert.That(pet.Energy, Is.EqualTo(AttributeValue.MAX));
+        Assert.That(maxEnergyCat.Energy, Is.EqualTo(AttributeValue.MAX));
+
     }
 
     [Test]
     public void Sleep_WhenEnergyNotMax_IncrementsEnergy()
     {
-        _pet.Sleep();
+        _testCatPet.Sleep();
 
-        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
     }
 
     [Test]
@@ -82,9 +83,9 @@ public class CatPetTests
     {
         var sleepValue = 3;
 
-        _pet.Sleep(sleepValue);
+        _testCatPet.Sleep(sleepValue);
 
-        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MEDIUM + sleepValue));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MEDIUM + sleepValue));
     }
 
     [Test]
@@ -92,9 +93,9 @@ public class CatPetTests
     {
         var sleepValue = 5;
 
-        _pet.Sleep(sleepValue);
-        _pet.Sleep(sleepValue);
+        _testCatPet.Sleep(sleepValue);
+        _testCatPet.Sleep(sleepValue);
 
-        Assert.That(_pet.Energy, Is.EqualTo(AttributeValue.MAX));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MAX));
     }
 }
