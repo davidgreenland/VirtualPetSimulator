@@ -17,7 +17,7 @@ public class CatPetTests
         _timeServiceMock = new Mock<ITimeService>();
 
         _timeServiceMock.Setup(mock => mock.Delay(It.IsAny<int>())).Returns(Task.CompletedTask);
-        _testCatPet = new CatPet(_timeServiceMock.Object, "Simon", AttributeValue.MEDIUM, AttributeValue.MEDIUM);
+        _testCatPet = new CatPet(_timeServiceMock.Object, "Simon");
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class CatPetTests
     {
         await _testCatPet.Eat();
 
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - 1));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - 1));
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class CatPetTests
 
         await _testCatPet.Eat(whiskas);
 
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MEDIUM - whiskas));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - whiskas));
     }
 
     [Test]
@@ -71,30 +71,29 @@ public class CatPetTests
     }
 
     [Test]
-    public void Sleep_WhenEnergyNotMax_IncrementsEnergy()
+    public async Task Sleep_WhenEnergyNotMax_IncrementsEnergy()
     {
-        _testCatPet.Sleep();
+        await _testCatPet.Sleep();
 
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MEDIUM + 1));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + 1));
     }
 
     [Test]
-    public void Sleep_CanIncrementEnergyByMoreThan1()
+    public async Task Sleep_CanIncrementEnergyByMoreThan1()
     {
         var sleepValue = 3;
 
-        _testCatPet.Sleep(sleepValue);
+        await _testCatPet.Sleep(sleepValue);
 
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MEDIUM + sleepValue));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + sleepValue));
     }
 
     [Test]
-    public void Sleep_WillNotRaiseEnergyBeyondMax()
+    public async Task Sleep_WillNotRaiseEnergyBeyondMax()
     {
         var sleepValue = 5;
 
-        _testCatPet.Sleep(sleepValue);
-        _testCatPet.Sleep(sleepValue);
+        await Task.WhenAll(_testCatPet.Sleep(sleepValue), _testCatPet.Sleep(sleepValue));
 
         Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MAX));
     }

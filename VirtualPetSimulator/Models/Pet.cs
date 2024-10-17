@@ -29,7 +29,7 @@ public abstract class Pet
         }
     }
 
-    public Pet(ITimeService timeService, string name, int energy = 6, int hunger = 6, int happiness = 6)
+    public Pet(ITimeService timeService, string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
     {
         _timeService = timeService;
         Name = name;
