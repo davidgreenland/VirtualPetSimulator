@@ -105,4 +105,15 @@ public class CatPetTests
 
         Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + 1));
     }
+
+    [Test]
+    public void Play_DoesNotIncreaseHappinessToMoreThanMax()
+    {
+        for (var i = 0; i < 10; i++)
+        {
+            _testCatPet.Play();
+        }
+
+        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.MAX));
+    }
 }

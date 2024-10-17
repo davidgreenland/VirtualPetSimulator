@@ -7,7 +7,6 @@ public abstract class Pet
 {
     private readonly ITimeService _timeService;
     public string Name { get; }
-    public int Happiness { get; private set; }
 
     private int _energy;
     public int Energy
@@ -26,6 +25,16 @@ public abstract class Pet
         private set
         {
             _hunger = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
+        }
+    }
+
+    private int _happiness;
+    public int Happiness
+    {
+        get => _hunger;
+        private set
+        {
+            _hunger = Math.Min(value, AttributeValue.MAX);
         }
     }
 
