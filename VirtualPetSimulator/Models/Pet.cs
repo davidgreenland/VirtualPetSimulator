@@ -59,4 +59,9 @@ public abstract class Pet
         Energy += sleepValue;
         await _timeService.Delay(sleepValue * 1000);
     }
+
+    public void Play()
+    {
+        Happiness += 1;
+    }
 }

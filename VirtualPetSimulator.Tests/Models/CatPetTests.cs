@@ -97,4 +97,12 @@ public class CatPetTests
 
         Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MAX));
     }
+
+    [Test]
+    public void Play_IncrementsHappiness()
+    {
+        _testCatPet.Play();
+
+        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + 1));
+    }
 }
