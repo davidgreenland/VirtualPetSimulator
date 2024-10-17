@@ -10,6 +10,7 @@ public class CatPetTests
 {
     private Mock<ITimeService> _timeServiceMock;
     private CatPet _testCatPet;
+    private const int DEFAULT_INCREMENT = 1;
 
     [SetUp]
     public void SetUp()
@@ -36,11 +37,11 @@ public class CatPetTests
     {
         await _testCatPet.Eat();
 
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - 1));
+        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - DEFAULT_INCREMENT));
     }
 
     [Test]
-    public async Task Eat_CanDecrementHungerByMoreThan1()
+    public async Task Eat_WhenGivenFoodValue_CanDecrementHungerByMoreThanDefault()
     {
         var whiskas = 4;
 
@@ -50,7 +51,7 @@ public class CatPetTests
     }
 
     [Test]
-    public async Task Eat_WillNotLowerHungerPastMinimum()
+    public async Task Eat_WhenFoodAmountMoreThanHunger_HungerDoesNotBecomeNegative()
     {
         var catFood = 3;
 
@@ -75,11 +76,11 @@ public class CatPetTests
     {
         await _testCatPet.Sleep();
 
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + 1));
+        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + DEFAULT_INCREMENT));
     }
 
     [Test]
-    public async Task Sleep_CanIncrementEnergyByMoreThan1()
+    public async Task Sleep_WhenGivenSleepValue_CanIncrementEnergyByMoreThanDefault()
     {
         var sleepValue = 3;
 
@@ -89,7 +90,7 @@ public class CatPetTests
     }
 
     [Test]
-    public async Task Sleep_WillNotRaiseEnergyBeyondMax()
+    public async Task Sleep_WhenSleepValueWillIncreaseEnergyBeyondMax_EnergyLimitsToMaximum()
     {
         var sleepValue = 5;
 
@@ -99,15 +100,15 @@ public class CatPetTests
     }
 
     [Test]
-    public void Play_IncrementsHappiness()
+    public void Play_WhenCalled_IncrementsHappiness()
     {
         _testCatPet.Play();
 
-        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + 1));
+        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + DEFAULT_INCREMENT));
     }
 
     [Test]
-    public void Play_DoesNotIncreaseHappinessToMoreThanMax()
+    public void Play_WhenUsedRepeatedly_DoesNotIncreaseHappinessToMoreThanMax()
     {
         for (var i = 0; i < 10; i++)
         {
@@ -115,5 +116,15 @@ public class CatPetTests
         }
 
         Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.MAX));
+    }
+
+    [Test] 
+    public void Play_WhenGivenPlayValue_CanIncrementMoreThanDefault()
+    {
+        var veryFunGame = 4; 
+        
+        _testCatPet.Play(veryFunGame);
+
+        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + veryFunGame));
     }
 }

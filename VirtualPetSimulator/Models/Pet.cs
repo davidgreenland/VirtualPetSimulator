@@ -31,10 +31,10 @@ public abstract class Pet
     private int _happiness;
     public int Happiness
     {
-        get => _hunger;
+        get => _happiness;
         private set
         {
-            _hunger = Math.Min(value, AttributeValue.MAX);
+            _happiness = Math.Min(value, AttributeValue.MAX);
         }
     }
 
@@ -69,8 +69,8 @@ public abstract class Pet
         await _timeService.Delay(sleepValue * 1000);
     }
 
-    public void Play()
+    public void Play(int playValue = 1)
     {
-        Happiness += 1;
+        Happiness += playValue;
     }
 }
