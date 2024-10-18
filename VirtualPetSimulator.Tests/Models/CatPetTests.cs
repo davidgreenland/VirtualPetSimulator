@@ -84,7 +84,7 @@ public class CatPetTests
     {
         await _testCatPet.Eat(foodValue);
 
-        _validatorMock.Verify(x => x.ValidateNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
     }
 
     [Test]
@@ -146,7 +146,7 @@ public class CatPetTests
     {
         await _testCatPet.Sleep(sleepValue);
 
-        _validatorMock.Verify(x => x.ValidateNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
     }
 
     [Test]

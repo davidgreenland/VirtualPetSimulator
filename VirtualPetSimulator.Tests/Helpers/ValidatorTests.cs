@@ -21,7 +21,7 @@ public class ValidatorTests
     {
         var paramName = "value";
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => _validator.ValidateNonNegative(negativeParam, paramName));
+        Assert.That(_validator.IsNonNegative(negativeParam, paramName), Is.EqualTo(false));
     }
 
     [TestCase(1)]
@@ -32,6 +32,6 @@ public class ValidatorTests
     {
         var paramName = "value";
 
-        _validator.ValidateNonNegative(positiveParam, paramName);
+        Assert.That(_validator.IsNonNegative(positiveParam, paramName), Is.EqualTo(true));
     }
 }

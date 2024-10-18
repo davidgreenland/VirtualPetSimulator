@@ -52,14 +52,13 @@ public abstract class Pet
 
     public async Task<int> Eat(int foodAmount = 1)
     {
-        _validator.ValidateNonNegative(foodAmount, nameof(foodAmount));
-
         int portionsEaten;
-        if (Hunger == AttributeValue.MIN)
+        if (_validator.IsNonNegative(foodAmount, nameof(foodAmount)) || Hunger == AttributeValue.MIN)
         {
             portionsEaten = 0;
             return portionsEaten;
         }
+
 
         portionsEaten = Math.Min(foodAmount, Hunger);
         var eatingOperation = _timeService.RunOperation(portionsEaten * 1000);
@@ -72,7 +71,7 @@ public abstract class Pet
 
     public async Task<int> Sleep(int sleepValue = 1)
     {
-        _validator.ValidateNonNegative(sleepValue, nameof(sleepValue));
+        _validator.IsNonNegative(sleepValue, nameof(sleepValue));
 
         int amountSlept;
         if (Energy == AttributeValue.MAX)
