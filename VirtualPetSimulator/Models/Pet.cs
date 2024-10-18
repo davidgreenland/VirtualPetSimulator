@@ -6,7 +6,7 @@ namespace VirtualPetSimulator.Models;
 
 public abstract class Pet
 {
-    private readonly ITimeService _timeService;
+    private readonly IOperationService _timeService;
     private readonly IValidator _validator;
     public string Name { get; }
 
@@ -40,7 +40,7 @@ public abstract class Pet
         }
     }
 
-    public Pet(ITimeService timeService, IValidator validator, string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
+    public Pet(IOperationService timeService, IValidator validator, string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
     {
         _timeService = timeService;
         _validator = validator;
@@ -60,7 +60,8 @@ public abstract class Pet
         }
 
         portionsEaten = Math.Min(foodAmount, Hunger);
-        var eatingOperation = _timeService.RunOperation(portionsEaten * 1000);
+        var eatMessage = $"{Name} enjoying his food";
+        var eatingOperation = _timeService.RunOperation(portionsEaten, eatMessage);
 
         Hunger -= portionsEaten;
         await eatingOperation;
@@ -78,7 +79,8 @@ public abstract class Pet
         }
 
         amountSlept = Math.Min(sleepValue, AttributeValue.MAX - Energy);
-        var sleepOperation = _timeService.RunOperation(amountSlept * 1000);
+        var sleepMessage = $"{Name} is napping";
+        var sleepOperation = _timeService.RunOperation(amountSlept, sleepMessage);
 
         Energy += sleepValue;
         await sleepOperation;
@@ -96,7 +98,8 @@ public abstract class Pet
         }
 
         happinessIncrease = Math.Min(playValue, AttributeValue.MAX - Happiness);
-        var playOperation = _timeService.RunOperation(playValue * 1000);
+        var playMessage = $"{Name} is playing";
+        var playOperation = _timeService.RunOperation(playValue, playMessage);
 
         Happiness += happinessIncrease;
         await playOperation;

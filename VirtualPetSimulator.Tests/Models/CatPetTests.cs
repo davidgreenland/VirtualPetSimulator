@@ -9,7 +9,7 @@ namespace VirtualPetSimulator.Tests.Models;
 
 public class CatPetTests
 {
-    private Mock<ITimeService> _timeServiceMock;
+    private Mock<IOperationService> _operationServiceMock;
     private Mock<IValidator> _validatorMock;
     private CatPet _testCatPet;
     private const int DEFAULT_INCREMENT = 1;
@@ -17,23 +17,23 @@ public class CatPetTests
     [SetUp]
     public void SetUp()
     {
-        _timeServiceMock = new Mock<ITimeService>();
+        _operationServiceMock = new Mock<IOperationService>();
         _validatorMock = new Mock<IValidator>();
 
-        _timeServiceMock.Setup(mock => mock.RunOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
-        _testCatPet = new CatPet(_timeServiceMock.Object, _validatorMock.Object, "Simon");
+        _operationServiceMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _testCatPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Simon");
     }
 
     [Test]
     public async Task Eat_WhenNotHungry_DoesNotEat()
     {
-        var notHungryPet = new CatPet(_timeServiceMock.Object, _validatorMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var notHungryPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
 
         var portionsEaten = notHungryPet.Eat();
 
         Assert.That(notHungryPet.Hunger, Is.EqualTo(AttributeValue.MIN));
         Assert.That(await portionsEaten, Is.EqualTo(0));
-        _timeServiceMock.Verify(x => x.RunOperation(It.IsAny<int>()), Times.Never());
+        _operationServiceMock.Verify(x => x.RunOperation(It.IsAny<int>(), It.IsAny<string>()), Times.Never());
     }
 
     [Test]
@@ -90,12 +90,12 @@ public class CatPetTests
     [Test]
     public async Task Sleep_WhenNotTired_DoesNotSleep()
     {
-        var maxEnergyCat = new CatPet(_timeServiceMock.Object, _validatorMock.Object, "Joseph", energy: AttributeValue.MAX, AttributeValue.MIN);
+        var maxEnergyCat = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Joseph", energy: AttributeValue.MAX, AttributeValue.MIN);
 
         await maxEnergyCat.Sleep();
 
         Assert.That(maxEnergyCat.Energy, Is.EqualTo(AttributeValue.MAX));
-        _timeServiceMock.Verify(x => x.RunOperation(It.IsAny<int>()), Times.Never());
+        _operationServiceMock.Verify(x => x.RunOperation(It.IsAny<int>(), It.IsAny<string>()), Times.Never());
     }
 
     [Test]
@@ -187,7 +187,7 @@ public class CatPetTests
     [Test]
     public async Task Play_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
     {
-        var sadPet = new CatPet(_timeServiceMock.Object, _validatorMock.Object, "Misererio", AttributeValue.DEFAULT, AttributeValue.DEFAULT, AttributeValue.HAPPINESS_PLAY_THRESHOLD);
+        var sadPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Misererio", AttributeValue.DEFAULT, AttributeValue.DEFAULT, AttributeValue.HAPPINESS_PLAY_THRESHOLD);
         var noIncrease = 0;
 
         var happinessIncrease = sadPet.Play();
