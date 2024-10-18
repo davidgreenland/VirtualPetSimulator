@@ -150,37 +150,58 @@ public class CatPetTests
     }
 
     [Test]
-    public void Play_WhenCalled_IncrementsHappiness()
+    public async Task Play_WhenCalled_IncrementsHappiness()
     {
-        _testCatPet.Play();
+        await _testCatPet.Play();
 
         Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + DEFAULT_INCREMENT));
     }
 
     [Test]
-    public void Play_WhenUsedRepeatedly_DoesNotIncreaseHappinessToMoreThanMax()
+    public async Task Play_WhenUsedRepeatedly_DoesNotIncreaseHappinessToMoreThanMax()
     {
+        var tasks = new List<Task>();
         for (var i = 0; i < 10; i++)
         {
-            _testCatPet.Play();
+            tasks.Add(_testCatPet.Play());
         }
 
-        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.MAX));
+        while(tasks.Count > 0)
+        {
+            Task finishedTask = await Task.WhenAny(tasks);
+            tasks.Remove(finishedTask);
+            Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.MAX));
+        }
     }
 
     [Test] 
-    public void Play_WhenGivenExcessPlay_CanIncrementMoreThanDefault()
+    public async Task Play_WhenGivenExcessPlay_CanIncrementMoreThanDefault()
     {
         var veryFunGame = 4; 
         
-        _testCatPet.Play(veryFunGame);
+        await _testCatPet.Play(veryFunGame);
 
         Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + veryFunGame));
     }
 
     [Test]
-    public void Play_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
+    public async Task Play_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
     {
         var sadPet = new CatPet(_timeServiceMock.Object, _validatorMock.Object, "Misererio", AttributeValue.DEFAULT, AttributeValue.DEFAULT, AttributeValue.HAPPINESS_PLAY_THRESHOLD);
+        var noIncrease = 0;
+
+        var happinessIncrease = sadPet.Play();
+
+        Assert.That(await happinessIncrease, Is.EqualTo(noIncrease));
+    }
+
+    [TestCase(18)]
+    [TestCase(-4)]
+    [TestCase(10898)]
+    public async Task Play_WhenCalled_CallsValidatorWithValue(int foodValue)
+    {
+        await _testCatPet.Play(foodValue);
+
+        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
     }
 }

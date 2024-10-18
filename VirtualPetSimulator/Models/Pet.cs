@@ -59,7 +59,6 @@ public abstract class Pet
             return portionsEaten;
         }
 
-
         portionsEaten = Math.Min(foodAmount, Hunger);
         var eatingOperation = _timeService.RunOperation(portionsEaten * 1000);
 
@@ -71,10 +70,8 @@ public abstract class Pet
 
     public async Task<int> Sleep(int sleepValue = 1)
     {
-        _validator.IsNonNegative(sleepValue, nameof(sleepValue));
-
         int amountSlept;
-        if (Energy == AttributeValue.MAX)
+        if (_validator.IsNonNegative(sleepValue, nameof(sleepValue)) || Energy == AttributeValue.MAX)
         {
             amountSlept = 0;
             return amountSlept;
@@ -92,11 +89,12 @@ public abstract class Pet
     public async Task<int> Play(int playValue = 1)
     {
         int happinessIncrease;
-        if (Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
+        if (_validator.IsNonNegative(playValue, nameof(playValue)) || Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
         {
             happinessIncrease = 0;
             return happinessIncrease;
         }
+
         happinessIncrease = Math.Min(playValue, AttributeValue.MAX - Happiness);
         var playOperation = _timeService.RunOperation(playValue * 1000);
 
