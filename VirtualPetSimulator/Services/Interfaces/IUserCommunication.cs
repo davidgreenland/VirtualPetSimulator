@@ -1,7 +1,7 @@
-﻿namespace VirtualPetSimulator.Services.Interfaces
+﻿namespace VirtualPetSimulator.Services.Interfaces;
+
+public interface IUserCommunication
 {
-    public interface IUserCommunication
-    {
-        void ShowMessage(string message);
-    }
+    Task RunOperation(int repetitions, string message);
+    void ShowMessage(string message);
 }

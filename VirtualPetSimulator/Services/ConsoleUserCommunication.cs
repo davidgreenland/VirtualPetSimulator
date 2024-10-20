@@ -1,11 +1,15 @@
-﻿using VirtualPetSimulator.Services.Interfaces;
+﻿using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Services;
 
 public class ConsoleUserCommunication : IUserCommunication
 {
-    public void ShowMessage(string message)
+    public Task RunOperation(int repetitions, string message)
     {
-        Console.WriteLine(message);
+        // repeat messages
+        return Task.Delay(repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS);
     }
+
+    public void ShowMessage(string message) => Console.WriteLine(message);
 }
