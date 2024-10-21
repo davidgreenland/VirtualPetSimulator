@@ -2,206 +2,203 @@
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Helpers;
 using Moq;
-using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Models;
 
 public class CatPetTests
 {
-    private Mock<IOperationService> _operationServiceMock;
-    private Mock<IValidator> _validatorMock;
-    private CatPet _testCatPet;
-    private const int DEFAULT_INCREMENT = 1;
+    private CatPet _defaultCatPet;
+    private const int SINGLE_INCREMENT = 1;
 
     [SetUp]
     public void SetUp()
     {
-        _operationServiceMock = new Mock<IOperationService>();
-        _validatorMock = new Mock<IValidator>();
-
-        _operationServiceMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
-        _testCatPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Simon");
+        _defaultCatPet = new CatPet("Simon");
     }
 
     [Test]
-    public async Task Eat_WhenNotHungry_DoesNotEat()
+    public void ChangeEnergy_WhenEnergyMAX_DoesNotChange()
     {
-        var notHungryPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Joseph", AttributeValue.MEDIUM, AttributeValue.MIN);
+        var startingEnergy = AttributeValue.MAX;
+        var pet = new CatPet("Joseph", startingEnergy);
 
-        var portionsEaten = notHungryPet.Eat();
+        pet.ChangeEnergy(SINGLE_INCREMENT);
 
-        Assert.That(notHungryPet.Hunger, Is.EqualTo(AttributeValue.MIN));
-        Assert.That(await portionsEaten, Is.EqualTo(0));
-        _operationServiceMock.Verify(x => x.RunOperation(It.IsAny<int>(), It.IsAny<string>()), Times.Never());
+        Assert.That(pet.Energy, Is.EqualTo(startingEnergy));
     }
 
     [Test]
-    public async Task Eat_WhenHasHunger_DecrementsHunger()
+    public void ChangeEnergy_WhenHasEnergy_IncrementsEnergy()
     {
-        await _testCatPet.Eat();
+        _defaultCatPet.ChangeEnergy(SINGLE_INCREMENT);
 
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - DEFAULT_INCREMENT));
+        Assert.That(_defaultCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + SINGLE_INCREMENT));
+    }
+
+    [TestCase(2, 5, 7)]
+    [TestCase(5, 5, 10)]
+    [TestCase(8, 1, 9)]
+    [TestCase(9, 1, 10)]
+    [TestCase(10, -1, 9)]
+    [TestCase(7, -3, 4)]
+    [TestCase(9, -6, 3)]
+    [TestCase(9, -9, 0)]
+    public void ChangeEnergy_WhenCalledWithValue_CanChangeByValue(int startingEnergy, int change, int expected)
+    {
+        var pet = new CatPet("Kitty", startingEnergy);
+
+        pet.ChangeEnergy(change);
+
+        Assert.That(pet.Energy, Is.EqualTo(expected));
+    }
+
+    [TestCase(4, -6)]
+    [TestCase(10, -12)]
+    [TestCase(1, -6)]
+    [TestCase(3, -5)]
+    public void ChangeEnergy_WhenNegativeChangeAmountMoreThanEnergy_EnergyDoesNotBecomeNegative(int startingEnergy, int change)
+    {
+        var pet = new CatPet("Kitty", startingEnergy);
+
+        pet.ChangeEnergy(change);
+
+        Assert.That(pet.Energy, Is.EqualTo(AttributeValue.MIN));
+    }
+
+    [TestCase(4, 8)]
+    [TestCase(9, 4)]
+    [TestCase(1, 13)]
+    [TestCase(3, 8)]
+    public void ChangeEnergy_WhenPositveChangeAmountMoreThanDeficit_EnergyDoesNotExceedMax(int startingEnergy, int change)
+    {
+        var pet = new CatPet("Kitty", startingEnergy);
+
+        pet.ChangeEnergy(change);
+
+        Assert.That(pet.Energy, Is.EqualTo(AttributeValue.MAX));
     }
 
     [Test]
-    public async Task Eat_WhenGivenFoodValue_CanDecrementHungerByMoreThanDefault()
+    public void ChangeHunger_WhenHungerMax_DoesNotChange()
     {
-        var whiskas = 4;
+        var startingHunger = AttributeValue.MAX;
+        var pet = new CatPet("Joseph", AttributeValue.MEDIUM, startingHunger);
 
-        await _testCatPet.Eat(whiskas);
+        pet.ChangeHunger(SINGLE_INCREMENT);
 
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT - whiskas));
+        Assert.That(pet.Hunger, Is.EqualTo(AttributeValue.MAX));
     }
 
     [Test]
-    public async Task Eat_WhenFoodAmountMoreThanHunger_HungerDoesNotBecomeNegative()
+    public void ChangeHunger_WhenHasHunger_IncrementsHunger()
     {
-        var catFood = 3;
+        _defaultCatPet.ChangeHunger(SINGLE_INCREMENT);
 
-        await Task.WhenAll(_testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood), _testCatPet.Eat(catFood));
-
-        Assert.That(_testCatPet.Hunger, Is.EqualTo(AttributeValue.MIN));
+        Assert.That(_defaultCatPet.Hunger, Is.EqualTo(AttributeValue.DEFAULT + SINGLE_INCREMENT));
     }
 
-    [TestCase(1, 1)]
-    [TestCase(2, 2)]
-    [TestCase(4, 4)]
-    [TestCase(7, 6)]
-    [TestCase(11, 6)]
-    [TestCase(23, 6)]
-    public async Task Eat_WhenFeedingDefaultPet_ReturnsCorrectPortionsEaten(int foodValue, int expected)
+    [TestCase(2, 5, 7)]
+    [TestCase(5, 5, 10)]
+    [TestCase(8, 1, 9)]
+    [TestCase(9, 1, 10)]
+    [TestCase(10, -1, 9)]
+    [TestCase(7, -3, 4)]
+    [TestCase(9, -6, 3)]
+    [TestCase(9, -9, 0)]
+    public void ChangeHunger_WhenCalledWithValue_CanChangeByValue(int startingHunger, int change, int expected)
     {
-        var portionsEaten = _testCatPet.Eat(foodValue);
+        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
 
-        Assert.That(await portionsEaten, Is.EqualTo(expected));
+        pet.ChangeHunger(change);
+
+        Assert.That(pet.Hunger, Is.EqualTo(expected));
     }
 
-    [TestCase(3)]
-    [TestCase(-4)]
-    [TestCase(108)]
-    public async Task Eat_WhenCalled_CallsValidatorWithValue(int foodValue)
+    [TestCase(4, -6)]
+    [TestCase(10, -12)]
+    [TestCase(1, -6)]
+    [TestCase(3, -5)]
+    public void ChangeHunger_WhenNegativeChangeAmountMoreThanHunger_HungerDoesNotBecomeNegative(int startingHunger, int change)
     {
-        await _testCatPet.Eat(foodValue);
+        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
 
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+        pet.ChangeHunger(change);
+
+        Assert.That(pet.Hunger, Is.EqualTo(AttributeValue.MIN));
     }
 
-    [Test]
-    public async Task Sleep_WhenNotTired_DoesNotSleep()
+    [TestCase(4, 8)]
+    [TestCase(9, 4)]
+    [TestCase(1, 13)]
+    [TestCase(3, 8)]
+    public void ChangeHunger_WhenPositveChangeAmountMoreThanDeficit_HungerDoesNotExceedMax(int startingHunger, int change)
     {
-        var maxEnergyCat = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Joseph", energy: AttributeValue.MAX, AttributeValue.MIN);
+        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
 
-        await maxEnergyCat.Sleep();
+        pet.ChangeHunger(change);
 
-        Assert.That(maxEnergyCat.Energy, Is.EqualTo(AttributeValue.MAX));
-        _operationServiceMock.Verify(x => x.RunOperation(It.IsAny<int>(), It.IsAny<string>()), Times.Never());
-    }
-
-    [Test]
-    public async Task Sleep_WhenEnergyNotMax_IncrementsEnergy()
-    {
-        await _testCatPet.Sleep();
-
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + DEFAULT_INCREMENT));
-    }
-
-    [Test]
-    public async Task Sleep_WhenGivenSleepValue_CanIncrementEnergyByMoreThanDefault()
-    {
-        var sleepValue = 3;
-
-        await _testCatPet.Sleep(sleepValue);
-
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.DEFAULT + sleepValue));
+        Assert.That(pet.Hunger, Is.EqualTo(AttributeValue.MAX));
     }
 
     [Test]
-    public async Task Sleep_WhenSleepValueWillIncreaseEnergyBeyondMax_EnergyLimitsToMaximum()
+    public void ChangeHappiness_WhenHappinessMAX_DoesNotChange()
     {
-        var sleepValue = 5;
+        var startingHappiness = AttributeValue.MAX;
+        var pet = new CatPet("Joseph", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
-        await Task.WhenAll(_testCatPet.Sleep(sleepValue), _testCatPet.Sleep(sleepValue));
+        pet.ChangeHappiness(SINGLE_INCREMENT);
 
-        Assert.That(_testCatPet.Energy, Is.EqualTo(AttributeValue.MAX));
-    }
-
-    [TestCase(1, 1)]
-    [TestCase(2, 2)]
-    [TestCase(4, 4)]
-    [TestCase(7, 4)]
-    [TestCase(11, 4)]
-    [TestCase(23, 4)]
-    public async Task Sleep_WhenDefaultPetSleeps_ReturnsCorrectAmountSlept(int sleepValue, int expected)
-    {
-        var amountSlept = _testCatPet.Sleep(sleepValue);
-
-        Assert.That(await amountSlept, Is.EqualTo(expected));
-    }
-
-    [TestCase(-35)]
-    [TestCase(4)]
-    [TestCase(18)]
-    public async Task Sleep_WhenCalled_CallsValidatorWithValue(int sleepValue)
-    {
-        await _testCatPet.Sleep(sleepValue);
-
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
+        Assert.That(pet.Happiness, Is.EqualTo(startingHappiness));
     }
 
     [Test]
-    public async Task Play_WhenCalled_IncrementsHappiness()
+    public void ChangeHappiness_WhenHasHappiness_IncrementsHappiness()
     {
-        await _testCatPet.Play();
+        _defaultCatPet.ChangeHappiness(SINGLE_INCREMENT);
 
-        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + DEFAULT_INCREMENT));
+        Assert.That(_defaultCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + SINGLE_INCREMENT));
     }
 
-    [Test]
-    public async Task Play_WhenUsedRepeatedly_DoesNotIncreaseHappinessToMoreThanMax()
+    [TestCase(2, 5, 7)]
+    [TestCase(5, 5, 10)]
+    [TestCase(8, 1, 9)]
+    [TestCase(9, 1, 10)]
+    [TestCase(10, -1, 9)]
+    [TestCase(7, -3, 4)]
+    [TestCase(9, -6, 3)]
+    [TestCase(9, -9, 0)]
+    public void ChangeHappiness_WhenCalledWithValue_CanChangeByValue(int startingHappiness, int change, int expected)
     {
-        var tasks = new List<Task>();
-        for (var i = 0; i < 10; i++)
-        {
-            tasks.Add(_testCatPet.Play());
-        }
+        var pet = new CatPet("Kits", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
-        while(tasks.Count > 0)
-        {
-            Task finishedTask = await Task.WhenAny(tasks);
-            tasks.Remove(finishedTask);
-            Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.MAX));
-        }
+        pet.ChangeHappiness(change);
+
+        Assert.That(pet.Happiness, Is.EqualTo(expected));
     }
 
-    [Test] 
-    public async Task Play_WhenGivenExcessPlay_CanIncrementMoreThanDefault()
+    [TestCase(4, -6)]
+    [TestCase(10, -12)]
+    [TestCase(1, -6)]
+    [TestCase(3, -5)]
+    public void ChangeHappiness_WhenNegativeChangeAmountMoreThanHappiness_HappinessDoesNotBecomeNegative(int startingHappiness, int change)
     {
-        var veryFunGame = 4; 
-        
-        await _testCatPet.Play(veryFunGame);
+        var pet = new CatPet("Kits", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
-        Assert.That(_testCatPet.Happiness, Is.EqualTo(AttributeValue.DEFAULT + veryFunGame));
+        pet.ChangeHappiness(change);
+
+        Assert.That(pet.Happiness, Is.EqualTo(AttributeValue.MIN));
     }
 
-    [Test]
-    public async Task Play_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
+    [TestCase(4, 8)]
+    [TestCase(9, 4)]
+    [TestCase(1, 13)]
+    [TestCase(3, 8)]
+    public void ChangeHappiness_WhenPositveChangeAmountMoreThanDeficit_HappinessDoesNotExceedMax(int startingHappiness, int change)
     {
-        var sadPet = new CatPet(_operationServiceMock.Object, _validatorMock.Object, "Misererio", AttributeValue.DEFAULT, AttributeValue.DEFAULT, AttributeValue.HAPPINESS_PLAY_THRESHOLD);
-        var noIncrease = 0;
+        var pet = new CatPet("CatFish", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
-        var happinessIncrease = sadPet.Play();
+        pet.ChangeHappiness(change);
 
-        Assert.That(await happinessIncrease, Is.EqualTo(noIncrease));
-    }
-
-    [TestCase(18)]
-    [TestCase(-4)]
-    [TestCase(10898)]
-    public async Task Play_WhenCalled_CallsValidatorWithValue(int foodValue)
-    {
-        await _testCatPet.Play(foodValue);
-
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+        Assert.That(pet.Happiness, Is.EqualTo(AttributeValue.MAX));
     }
 }

@@ -25,7 +25,7 @@ public abstract class Pet : IPet
     public int Happiness
     {
         get => _happiness;
-        set => _happiness = Math.Min(value, AttributeValue.MAX);
+        set => _happiness = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
     }
 
     public Pet( string name, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
@@ -36,12 +36,12 @@ public abstract class Pet : IPet
         Happiness = happiness;
     }
 
-    public void ChangeHunger(int value)
+    public void ChangeEnergy(int value)
     {
-        Hunger += value;
+        Energy += value;
     }
 
-    public void ChangeEnergy(int value)
+    public void ChangeHunger(int value)
     {
         Hunger += value;
     }
