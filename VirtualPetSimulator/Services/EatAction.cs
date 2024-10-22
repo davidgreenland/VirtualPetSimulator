@@ -12,7 +12,7 @@ public class EatAction : IPetAction
     private readonly IUserCommunication _userCommunication;
     public int FoodAmount { get; }
 
-    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int foodAmount = 1 )
+    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int foodAmount = 1)
     {
         _pet = pet;
         _validator = validator;

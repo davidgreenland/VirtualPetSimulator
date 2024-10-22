@@ -30,6 +30,11 @@ public class SleepAction : IPetAction
         var oneSleep = 1;
         int amountSlept = 0;
 
+        if (_sleepSpecified.HasValue && _validator.IsNonNegative(_sleepSpecified.Value, nameof(_sleepSpecified)) == false)
+        {
+            return amountSlept;
+        }
+
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified != 0)
         {
             await _userCommunication.RunOperation(oneSleep, sleepMessage);

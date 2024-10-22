@@ -25,6 +25,8 @@ public class SleepActionTests
 
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.DEFAULT);
         _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
+        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
     }
 
     [Test]
@@ -50,25 +52,28 @@ public class SleepActionTests
     }
 
     [Test]
-    public async Task Execute_WhenEnergyNotMax_IncreasesEnergy()
+    public async Task Execute_WhenEnergyNotMax_CallsChangeEnergyCorrectTimes()
     {
         _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
         _testPet.SetupSequence(x => x.Energy)
+            .Returns(AttributeValue.MAX - 2)
             .Returns(AttributeValue.MAX - 1)
             .Returns(AttributeValue.MAX);
+        var expected = 2;
 
-        var amountSlept = _sleepAction.Execute();
+        var amountSlept = await _sleepAction.Execute();
 
-        Assert.That(await amountSlept, Is.GreaterThan(0));
-        _testPet.Verify(x => x.ChangeEnergy(It.IsAny<int>()));
+        _testPet.Verify(x => x.ChangeEnergy(It.Is<int>(val => val == 1)), Times.Exactly(expected));
     }
 
     [Test]
     public async Task Execute_WhenPetSleeps_SleepsUntilEnergyMax()
     {
+        var startingEnergy = 6;
+        var expected = 4;
         _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
         _testPet.SetupSequence(x => x.Energy)
-            .Returns(AttributeValue.DEFAULT)
+            .Returns(startingEnergy)
             .Returns(7)
             .Returns(8)
             .Returns(9)
@@ -76,7 +81,7 @@ public class SleepActionTests
 
         var amountSlept = _sleepAction.Execute();
 
-        Assert.That(await amountSlept, Is.EqualTo(AttributeValue.MAX - AttributeValue.DEFAULT));
+        Assert.That(await amountSlept, Is.EqualTo(expected));
     }
 
     [TestCase(2, 3)]
@@ -88,10 +93,11 @@ public class SleepActionTests
     {
         _testPet.Setup(x => x.Energy).Returns(energy);
         _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+        var expected = sleepValue;
 
         var amountSlept = _sleepAction.Execute();
 
-        Assert.That(await amountSlept, Is.EqualTo(sleepValue));
+        Assert.That(await amountSlept, Is.EqualTo(expected));
     }
  
     [TestCase(9, 3, 1)]
@@ -108,6 +114,22 @@ public class SleepActionTests
         var amountSlept = _sleepAction.Execute();
 
         Assert.That(await amountSlept, Is.EqualTo(expected));
+    }
+
+    [TestCase(9, 3, 1)]
+    [TestCase(5, 8, 5)]
+    [TestCase(3, 10, 7)]
+    [TestCase(0, 14, 10)]
+    public async Task Execute_WhenSleeps_CallsValidatorWithValue(int energy, int sleepValue, int expected)
+    {
+        energy--;
+        _testPet.Setup(x => x.Energy)
+            .Returns(() => ++energy);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+
+        await _sleepAction.Execute();
+
+        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
     }
 
     [TestCase(9, 3, 1)]

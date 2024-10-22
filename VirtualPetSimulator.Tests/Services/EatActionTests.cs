@@ -51,29 +51,17 @@ public class EatActionTests
     }
 
     [Test]
-    public async Task Execute_WhenPetHasHunger_CallsChangeHungerWithDefault()
+    public async Task Execute_WhenPetHasHungerAndNoFoodValueProvided_CallsChangeHungerWithDefault()
     {
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.MEDIUM);
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
 
-        var portionsEaten = _eatAction.Execute();
+        var portionsEaten = await _eatAction.Execute();
 
-        Assert.That(await portionsEaten, Is.EqualTo(DEFAULT_FOOD_VALUE));
         _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == -DEFAULT_FOOD_VALUE)), Times.Once());
     }
 
-    [TestCase(2)]
-    [TestCase(4)]
-    [TestCase(6)]
-    public async Task Execute_WhenFoodAmountHasValue_MethodCalledByMoreThanDefaultIncrement(int foodAmount)
-    {
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodAmount);
 
-        var portionsEaten = _eatAction.Execute();
-
-        Assert.That(await portionsEaten, Is.EqualTo(foodAmount));
-        _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == -foodAmount)), Times.Once());
-    }
 
     [TestCase(6, 1, 1)]
     [TestCase(3, 2, 2)]
@@ -81,7 +69,8 @@ public class EatActionTests
     [TestCase(6, 7, 6)]
     [TestCase(3, 11, 3)]
     [TestCase(10, 23, 10)]
-    public async Task Execute_WhenFeedingPet_ReturnsCorrectPortionsEaten(int hunger, int foodValue, int expected)
+    [TestCase(0, 23, 0)]
+    public async Task Execute_WhenFeedAmountProvided_ReturnsCorrectPortionsEaten(int hunger, int foodValue, int expected)
     {
         _testPet.Setup(x => x.Hunger).Returns(hunger);
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
@@ -97,7 +86,7 @@ public class EatActionTests
     [TestCase(7, -6)]
     [TestCase(11, -6)]
     [TestCase(23, -6)]
-    public async Task Execute_WhenFeedingPet_CallsChangeHungerCorrectly(int foodValue, int expected)
+    public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue, int expected)
     {
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
 
@@ -112,7 +101,7 @@ public class EatActionTests
     [TestCase(7, 6)]
     [TestCase(11, 6)]
     [TestCase(23, 6)]
-    public async Task Execute_WhenFeedingDefaultPet_CallsUserCommsWithCorrectValue(int foodValue, int expected)
+    public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue, int expected)
     {
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
 
@@ -122,9 +111,11 @@ public class EatActionTests
     }
 
     [TestCase(3)]
+    [TestCase(1)]
+    [TestCase(23)]
     [TestCase(-4)]
     [TestCase(108)]
-    public async Task Execute_WhenCalled_CallsValidatorWithValue(int foodValue)
+    public async Task Execute_WhenFeedAmountProvided_CallsValidatorWithValue(int foodValue)
     {
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
 
