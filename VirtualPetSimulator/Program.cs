@@ -1,10 +1,10 @@
 ﻿using VirtualPetSimulator.Models;
 
 Console.WriteLine(CatAscii.PlayfulCat);
-Console.ReadKey();
+await Task.Delay(2000);
 Console.Clear();
 Console.WriteLine(CatAscii.SleepingCat);
-Console.ReadKey();
+await Task.Delay(2000); 
 Console.Clear();
 Console.WriteLine(CatAscii.PeepingCat);
 Console.ReadKey();

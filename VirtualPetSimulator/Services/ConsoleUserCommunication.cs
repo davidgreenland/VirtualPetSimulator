@@ -5,10 +5,17 @@ namespace VirtualPetSimulator.Services;
 
 public class ConsoleUserCommunication : IUserCommunication
 {
+    private readonly ITimeService _timeService;
+
+    public ConsoleUserCommunication(ITimeService timeService)
+    {
+        _timeService = timeService;
+    }
+
     public Task RunOperation(int repetitions, string message)
     {
-        // repeat messages
-        return Task.Delay(repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS);
+        // todo: show messages and cat ascii
+        return _timeService.WaitForOperation(repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS);
     }
 
     public void ShowMessage(string message) => Console.WriteLine(message);
