@@ -1,9 +1,10 @@
-﻿using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
-namespace VirtualPetSimulator.Services;
+namespace VirtualPetSimulator.Actions;
 
 public class SleepAction : IPetAction
 {
@@ -30,7 +31,7 @@ public class SleepAction : IPetAction
         var oneSleep = 1;
         int amountSlept = 0;
 
-        if (_sleepSpecified.HasValue && _validator.IsNonNegative(_sleepSpecified.Value, nameof(_sleepSpecified)) == false)
+        if (_sleepSpecified.HasValue && !_validator.IsNonNegative(_sleepSpecified.Value, nameof(_sleepSpecified)))
         {
             return amountSlept;
         }

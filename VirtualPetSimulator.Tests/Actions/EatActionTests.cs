@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Services;
 using VirtualPetSimulator.Services.Interfaces;
 using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
+using VirtualPetSimulator.Actions;
 
-namespace VirtualPetSimulator.Tests.Services;
+namespace VirtualPetSimulator.Tests.Actions;
 
 public class EatActionTests
 {

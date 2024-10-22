@@ -1,9 +1,10 @@
-﻿using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
-namespace VirtualPetSimulator.Services;
+namespace VirtualPetSimulator.Actions;
 
 public class PlayAction : IPetAction
 {

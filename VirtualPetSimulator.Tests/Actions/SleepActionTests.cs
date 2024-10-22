@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Services;
 using VirtualPetSimulator.Services.Interfaces;
 using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
+using VirtualPetSimulator.Actions;
 
-namespace VirtualPetSimulator.Tests.Services;
+namespace VirtualPetSimulator.Tests.Actions;
 
 public class SleepActionTests
 {
@@ -99,7 +99,7 @@ public class SleepActionTests
 
         Assert.That(await amountSlept, Is.EqualTo(expected));
     }
- 
+
     [TestCase(9, 3, 1)]
     [TestCase(5, 8, 5)]
     [TestCase(3, 10, 7)]
@@ -136,6 +136,8 @@ public class SleepActionTests
     [TestCase(5, 8, 5)]
     [TestCase(3, 10, 7)]
     [TestCase(0, 14, 10)]
+    [TestCase(4, -14, 0)]
+    [TestCase(3, -1, 0)]
     public async Task Execute_WhenSleeps_UserCommsCalledCorrectNumberOfTimes(int energy, int sleepValue, int expected)
     {
         energy--;

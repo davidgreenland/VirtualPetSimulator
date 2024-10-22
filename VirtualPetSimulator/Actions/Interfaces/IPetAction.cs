@@ -1,4 +1,4 @@
-﻿namespace VirtualPetSimulator.Services.Interfaces
+﻿namespace VirtualPetSimulator.Actions.Interfaces
 {
     public interface IPetAction
     {

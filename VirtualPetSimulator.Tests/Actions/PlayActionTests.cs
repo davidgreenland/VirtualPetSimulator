@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Services;
 using VirtualPetSimulator.Services.Interfaces;
 using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
+using VirtualPetSimulator.Actions;
 
-namespace VirtualPetSimulator.Tests.Services;
+namespace VirtualPetSimulator.Tests.Actions;
 
 public class PlayActionTests
 {
@@ -53,7 +53,7 @@ public class PlayActionTests
     [Test]
     public async Task Execute_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
     {
-        _testPet.Setup(x => x.Happiness).Returns(AttributeValue.HAPPINESS_PLAY_THRESHOLD - 1);  
+        _testPet.Setup(x => x.Happiness).Returns(AttributeValue.HAPPINESS_PLAY_THRESHOLD - 1);
         _playAction = new PlayAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
         var expected = 0;
 
