@@ -1,5 +1,6 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
@@ -11,6 +12,7 @@ public class EatAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly PetActions eatAction = PetActions.Eat;
     public int FoodAmount { get; }
 
     public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int foodAmount = 1)
@@ -24,7 +26,7 @@ public class EatAction : IPetAction
     public async Task<int> Execute()
     {
         int portionsEaten;
-        if (_validator.IsNonNegative(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
+        if (!_validator.IsNonNegative(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
         {
             portionsEaten = 0;
             return portionsEaten;
@@ -32,7 +34,7 @@ public class EatAction : IPetAction
 
         portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
         var eatMessage = $"{_pet.Name} enjoying his food";
-        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage);
+        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage, _pet.GetAsciiArt(eatAction));
 
         _pet.ChangeHunger(-portionsEaten);
         await eatingOperation;

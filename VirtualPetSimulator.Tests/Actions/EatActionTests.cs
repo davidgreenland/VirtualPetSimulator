@@ -25,7 +25,10 @@ public class EatActionTests
 
         _testPet.Setup(pet => pet.Name).Returns("Simon");
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.DEFAULT);
-        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
+        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
+
     }
 
     [Test]
@@ -107,7 +110,7 @@ public class EatActionTests
 
         await _eatAction.Execute();
 
-        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(val => val == expected), It.IsAny<string>()), Times.Once());
+        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(val => val == expected), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
     [TestCase(3)]

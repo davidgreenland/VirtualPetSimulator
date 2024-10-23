@@ -1,5 +1,6 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
@@ -11,6 +12,8 @@ public class PlayAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly PetActions playAction = PetActions.Play;
+
     public int PlayAmountRequest { get; }
 
     public PlayAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int playAmountRequest = 1)
@@ -24,14 +27,14 @@ public class PlayAction : IPetAction
     public async Task<int> Execute()
     {
         int playAmount;
-        if (_validator.IsNonNegative(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
+        if (!_validator.IsNonNegative(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
         {
             playAmount = 0;
             return playAmount;
         }
 
         var playMessage = $"{_pet.Name} is having a good play";
-        var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage);
+        var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage, _pet.GetAsciiArt(playAction));
 
         _pet.ChangeHappiness(PlayAmountRequest);
         playAmount = PlayAmountRequest;

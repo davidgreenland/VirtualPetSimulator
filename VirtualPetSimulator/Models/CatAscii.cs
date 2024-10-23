@@ -1,18 +1,18 @@
-﻿namespace VirtualPetSimulator.Models;
+﻿using VirtualPetSimulator.Helpers.Enumerations;
+
+namespace VirtualPetSimulator.Models;
 
 public static class CatAscii
 {
-    public static string PlayfulCat => " _._     _,-'\"\"`-._\r\n(,-.`._,'(       |\\`-/|\r\n    `-.-' \\ )-`( , o o)\r\n          `-    \\`_`\"'-";
+    public static IDictionary<PetActions, string> Images { get; }
 
-    public static string SleepingCat => "      |\\      _,,,---,,_\r\nZZZzz /,`.-'`'    -.  ;-;;,_\r\n     |,4-  ) )-,_. ,\\ (  `'-'\r\n    '---''(_/--'  `-'\\_)";
-
-    public static string PeepingCat => "                    /)\r\n           /\\___/\\ ((\r\n           \\`@_@'/  ))\r\n           {_:Y:.}_//\r\n ----------{_}^-'{_}----------";
-
-    public static string LayingCat => "   |\\---/|\r\n   | ,_, |\r\n    \\_`_/-..----.\r\n ___/ `   ' ,\"\"+ \\    \r\n(__...'   __\\    |`.___.';\r\n  (_,...'(_,.`__)/'.....+";
-
-    public static string SittingCat => "\n  ^ ^  \r\n ('Y') )\r\n /   \\/ \r\n(\\|||/)";
-
-    public static string SittingCat2 => " /\\_/\\\r\n( o.o ) \r\n > ^ < )\r\n /   \\/ \r\n(\\|||/)";
-
-    public static string CatInBox => "              ,-.       _,---._ __  / \\\r\n             /  )    .-'       `./ /   \\\r\n            (  (   ,'            `/    /|\r\n             \\  `-\"             \\'\\   / |\r\n              `.              ,  \\ \\ /  |\r\n               /`.          ,'-`----Y   |\r\n              (            ;        |   '\r\n              |  ,-.    ,-'         |  /\r\n              |  | (   |            | /\r\n              )  |  \\  `.___________|/\r\n              `--'   `--'";
+    static CatAscii()
+    {
+        Images = new Dictionary<PetActions, string>() {
+            { PetActions.Play, " _._     _,-'\"\"`-._\r\n(,-.`._,'(       |\\`-/|\r\n    `-.-' \\ )-`( , o o)\r\n          `-    \\`_`\"'-" },
+            { PetActions.Eat, "        |\\=/|.-\"\"\"-.  \r\n        /6 6\\       \\\r\n       =\\_Y_/=  (_  ;\\\r\n  jgs    _U//_/-/__///\r\n        /kit\\      ((\r\n        ^^^^^       `" },
+            { PetActions.Sleep, "\"      |\\\\      _,,,---,,_\\r\\nZZZzz /,`.-'`'    -.  ;-;;,_\\r\\n     |,4-  ) )-,_. ,\\\\ (  `'-'\\r\\n    '---''(_/--'  `-'\\\\_)\";" },
+            { PetActions.Sit, " /\\_/\\\r\n( o.o ) \r\n > ^ < )\r\n /   \\/ \r\n(\\|||/)"}
+        };
+    }
 }

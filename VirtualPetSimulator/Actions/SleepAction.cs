@@ -1,5 +1,6 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
@@ -11,6 +12,7 @@ public class SleepAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly PetActions sleepAction = PetActions.Sleep;
     private int _sleepSpecified = AttributeValue.MAX;
 
     public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int sleepSpecified) : this(pet, validator, userCommunication)
@@ -38,7 +40,7 @@ public class SleepAction : IPetAction
 
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
         {
-            await _userCommunication.RunOperation(oneSleep, sleepMessage);
+            await _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt(sleepAction));
             _pet.ChangeEnergy(oneSleep);
             amountSlept += oneSleep;
 

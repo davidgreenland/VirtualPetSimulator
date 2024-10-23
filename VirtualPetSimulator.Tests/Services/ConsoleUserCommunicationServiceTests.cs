@@ -6,9 +6,9 @@ using VirtualPetSimulator.Helpers;
 
 namespace VirtualPetSimulator.Tests.Services;
 
-public class ConsoleUserCommunicationTests
+public class ConsoleUserCommunicationServiceTests
 {
-    private ConsoleUserCommunication _userCommunication;
+    private ConsoleUserCommunicationService _userCommunication;
     private Mock<ITimeService> _timeServiceMock;
 
     [SetUp]
@@ -17,17 +17,18 @@ public class ConsoleUserCommunicationTests
         _timeServiceMock = new Mock<ITimeService>();
         _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
 
-        _userCommunication = new ConsoleUserCommunication(_timeServiceMock.Object);
+        _userCommunication = new ConsoleUserCommunicationService(_timeServiceMock.Object);
     }
 
     [Test]
-    public void RunOperation_WhenCalled_CallsWaitForOperationWithCorrectArguments()
+    public async Task RunOperation_WhenCalled_CallsWaitForOperationWithCorrectArguments()
     {
         var repetitions = 2;
         var message = "Hello";
+        var image = "CatPic";
         var expectedMilliseconds = repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
 
-        var result = _userCommunication.RunOperation(repetitions, message);
+        var result = _userCommunication.RunOperation(repetitions, message, image);
 
         _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(i => i == expectedMilliseconds)));
     }

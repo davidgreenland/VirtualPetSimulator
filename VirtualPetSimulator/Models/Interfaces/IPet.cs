@@ -1,4 +1,6 @@
-﻿namespace VirtualPetSimulator.Models.Interfaces;
+﻿using VirtualPetSimulator.Helpers.Enumerations;
+
+namespace VirtualPetSimulator.Models.Interfaces;
 
 public interface IPet
 {
@@ -9,4 +11,5 @@ public interface IPet
     void ChangeHunger(int value);
     void ChangeEnergy(int value);
     void ChangeHappiness(int value);
+    string GetAsciiArt(PetActions action);
 }

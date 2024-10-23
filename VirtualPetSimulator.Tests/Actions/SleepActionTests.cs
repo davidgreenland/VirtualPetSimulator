@@ -24,7 +24,7 @@ public class SleepActionTests
         _userCommunicationMock = new Mock<IUserCommunication>();
 
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.DEFAULT);
-        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
         _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
         _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
     }
@@ -147,6 +147,6 @@ public class SleepActionTests
 
         await _sleepAction.Execute();
 
-        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(x => x == DEFAULT_SLEEP_VALUE), It.IsAny<string>()), Times.Exactly(expected));
+        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(x => x == DEFAULT_SLEEP_VALUE), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expected));
     }
 }
