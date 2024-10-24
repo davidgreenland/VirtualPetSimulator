@@ -7,8 +7,7 @@ namespace VirtualPetSimulator.Models;
 public abstract class Pet : IPet
 {
     public string Name { get; }
-    public IDictionary<PetActions, string> AsciiArt { get; }
-    public PetActions CurrentAction { get; set; } = PetActions.Sit;
+    public PetAction CurrentAction { get; set; } = PetAction.Sit;
 
     private int _energy;
     public int Energy
@@ -31,10 +30,10 @@ public abstract class Pet : IPet
         set => _happiness = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
     }
 
-    public Pet(string name, IDictionary<PetActions, string> asciiArt, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
+    public Pet(string name, IDictionary<PetAction, string> asciiArt, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
     {
         Name = name;
-        AsciiArt = asciiArt;
+        //AsciiArt = asciiArt;
         Energy = energy;
         Hunger = hunger;
         Happiness = happiness;
@@ -55,8 +54,8 @@ public abstract class Pet : IPet
         Happiness += value;
     }
 
-    public string GetAsciiArt()
-    {
-        return AsciiArt[CurrentAction];
-    }
+    //public string GetAsciiArt()
+    //{
+    //    return AsciiArt[CurrentAction];
+    //}
 }

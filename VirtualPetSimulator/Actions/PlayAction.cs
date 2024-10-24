@@ -12,7 +12,7 @@ public class PlayAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
-    private readonly PetActions playAction = PetActions.Play;
+    private readonly PetAction playAction = PetAction.Play;
 
     public int PlayAmountRequest { get; }
 

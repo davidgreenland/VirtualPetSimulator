@@ -5,8 +5,7 @@ namespace VirtualPetSimulator.Models.Interfaces;
 public interface IPet
 {
     string Name { get; }
-    PetActions CurrentAction { get; set; }
-    string GetAsciiArt();
+    PetAction CurrentAction { get; set; }
     int Energy { get; set; }
     int Happiness { get; set; }
     int Hunger { get; set; }

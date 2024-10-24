@@ -10,11 +10,11 @@ namespace VirtualPetSimulator.Services;
 public class VirtualPetApp
 {
     private readonly IPet _pet;
-    private readonly Dictionary<char, PetActions> _petActions;
+    private readonly Dictionary<char, PetAction> _petActions;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
 
-    public VirtualPetApp(IPet pet, Dictionary<char, PetActions> petActions, IValidator validator, IUserCommunication userCommunication)
+    public VirtualPetApp(IPet pet, Dictionary<char, PetAction> petActions, IValidator validator, IUserCommunication userCommunication)
     {
         _pet = pet;
         _petActions = petActions;
@@ -25,7 +25,7 @@ public class VirtualPetApp
     public async Task StartApp()
     {
         bool running = true;
-        PetActions userChoice;
+        PetAction userChoice;
         _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator");
         _userCommunication.ShowMessage("Press any key to begin");
         _userCommunication.WaitForUser();
@@ -39,29 +39,29 @@ public class VirtualPetApp
 
             switch (userChoice)
             {
-                case PetActions.Sleep:
+                case PetAction.Sleep:
                     petAction = new SleepAction(_pet, _validator, _userCommunication);
                     break;
-                case PetActions.Eat:
+                case PetAction.Eat:
                     petAction = new EatAction(_pet, _validator, _userCommunication);
                     break;
-                case PetActions.Play:
+                case PetAction.Play:
                     petAction = new PlayAction(_pet, _validator, _userCommunication);
                     break;
                 default:
-                    _pet.CurrentAction = PetActions.Sit;
+                    _pet.CurrentAction = PetAction.Sit;
                     break;
             }
 
             if (petAction != null)
             {
                 await petAction.Execute();
-                _pet.CurrentAction = PetActions.Sit;
+                _pet.CurrentAction = PetAction.Sit;
             }
         }
     }
 
-    private PetActions GetUserChoice()
+    private PetAction GetUserChoice()
     {
         char userChoice;
         do
@@ -81,7 +81,7 @@ public class VirtualPetApp
         var count = 0;
         foreach (var item in _petActions)
         {
-            var optionName = Enum.GetNames(typeof(PetActions));
+            var optionName = Enum.GetNames(typeof(PetAction));
             var actionKey = optionName[count][0];
 
             _userCommunication.ShowMessage($"[{actionKey}]{optionName[count].Substring(1)}");

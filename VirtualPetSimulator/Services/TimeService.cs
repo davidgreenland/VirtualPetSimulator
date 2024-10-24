@@ -1,5 +1,4 @@
-﻿using VirtualPetSimulator.Models.Interfaces;
-using VirtualPetSimulator.Services.Interfaces;
+﻿using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Services;
 

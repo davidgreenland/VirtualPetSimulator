@@ -8,10 +8,10 @@ var validator = new Validator();
 var userCommunication = new ConsoleUserCommunicationService(cat, new TimeService());
 
 var app = new VirtualPetApp(cat, 
-    new Dictionary<char, PetActions> { 
-        { 'S', PetActions.Sleep },
-        { 'E', PetActions.Eat }, 
-        { 'P', PetActions.Play } 
+    new Dictionary<char, PetAction> { 
+        { 'S', PetAction.Sleep },
+        { 'E', PetAction.Eat }, 
+        { 'P', PetAction.Play } 
     },
     validator, userCommunication);
 

@@ -12,7 +12,7 @@ public class SleepAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
-    private readonly PetActions sleepAction = PetActions.Sleep;
+    private readonly PetAction sleepAction = PetAction.Sleep;
     private int _sleepSpecified = AttributeValue.MAX;
 
     public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int sleepSpecified) : this(pet, validator, userCommunication)

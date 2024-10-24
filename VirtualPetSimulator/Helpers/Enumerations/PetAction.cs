@@ -1,6 +1,6 @@
 ﻿namespace VirtualPetSimulator.Helpers.Enumerations;
 
-public enum PetActions
+public enum PetAction
 {
     Sleep,
     Eat,
