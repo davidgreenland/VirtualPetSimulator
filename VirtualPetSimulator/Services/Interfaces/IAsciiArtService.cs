@@ -6,6 +6,6 @@ namespace VirtualPetSimulator.Services.Interfaces
     {
         IDictionary<PetAction, string> _actionImages { get; }
 
-        string GetAsciiForInput(PetAction action);
+        string GetAsciiForAction(PetAction action);
     }
 }

@@ -12,7 +12,7 @@ public class CatAsciiArtService : IAsciiArtService
             { PetAction.Sit, " /\\_/\\\r\n( o.o ) \r\n > ^ < )\r\n /   \\/ \r\n(\\|||/)"}
     };
 
-    public string GetAsciiForInput(PetAction action)
+    public string GetAsciiForAction(PetAction action)
     {
         if (!_actionImages.ContainsKey(action))
         {

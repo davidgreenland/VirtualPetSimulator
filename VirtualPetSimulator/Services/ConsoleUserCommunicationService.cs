@@ -6,18 +6,19 @@ namespace VirtualPetSimulator.Services;
 
 public class ConsoleUserCommunicationService : IUserCommunication
 {
-    private readonly IPet _pet;
     private readonly ITimeService _timeService;
+    private readonly IAsciiArtService _asciiArtService;
     private const int HEADER_SPACER = 15;
     public string ActivityMessage { get; set; } = string.Empty;
 
-    public ConsoleUserCommunicationService(IPet pet, ITimeService timeService)
+    public ConsoleUserCommunicationService(ITimeService timeService, IAsciiArtService AsciiArtService)
     {
-        _pet = pet;
+        pet = pet;
         _timeService = timeService;
+        _asciiArtService = AsciiArtService;
     }
 
-    public Task RunOperation(int repetitions, string message, string image)
+    public Task RunOperation(int repetitions, string message)
     {
         ActivityMessage = message;
         var delay = repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
@@ -26,13 +27,13 @@ public class ConsoleUserCommunicationService : IUserCommunication
         return operation;
     }
 
-    public void RenderScreen()
+    public void RenderScreen(IPet pet)
     {
         ClearScreen();
-        Console.Write($"Energy: {new string('#', _pet.Energy)}{new string(' ', HEADER_SPACER - _pet.Energy)}");
-        Console.Write($"Hunger: {new string('#', _pet.Hunger)}{new string(' ', HEADER_SPACER - _pet.Hunger)}");
-        Console.Write($"Happiness: {new string('#', _pet.Happiness)}\n\n");
-        Console.WriteLine($"{_pet.GetAsciiArt()}\n");
+        Console.Write($"Energy: {new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}");
+        Console.Write($"Hunger: {new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
+        Console.Write($"Happiness: {new string('#', pet.Happiness)}\n\n");
+        Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
         Console.WriteLine(ActivityMessage);
     }
 

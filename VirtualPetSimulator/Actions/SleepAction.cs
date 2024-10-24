@@ -41,7 +41,7 @@ public class SleepAction : IPetAction
 
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
         {
-            var operation = _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt());
+            var operation = _userCommunication.RunOperation(oneSleep, sleepMessage);
             var progress = _userCommunication.ShowProgress(operation);
 
             _pet.ChangeEnergy(oneSleep);
