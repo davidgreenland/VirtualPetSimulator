@@ -59,7 +59,6 @@ public class VirtualPetApp
                 _pet.CurrentAction = PetActions.Sit;
             }
         }
-
     }
 
     private PetActions GetUserChoice()

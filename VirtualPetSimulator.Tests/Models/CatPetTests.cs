@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Helpers;
-using Moq;
 
 namespace VirtualPetSimulator.Tests.Models;
 
