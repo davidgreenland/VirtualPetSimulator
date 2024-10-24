@@ -26,6 +26,7 @@ public class PlayAction : IPetAction
 
     public async Task<int> Execute()
     {
+        _pet.CurrentAction = playAction;
         int playAmount;
         if (!_validator.IsNonNegative(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
         {
@@ -34,13 +35,15 @@ public class PlayAction : IPetAction
         }
 
         var playMessage = $"{_pet.Name} is having a good play";
-        var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage, _pet.GetAsciiArt(playAction));
-
+        var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage, _pet.GetAsciiArt());
+        var progress = _userCommunication.ShowProgress(playingOperation);
         _pet.ChangeHappiness(PlayAmountRequest);
         playAmount = PlayAmountRequest;
         await playingOperation;
+        await progress;
         // todo: play reduces energy
 
+        _userCommunication.ActivityMessage = "";
         return playAmount;
     }
 }

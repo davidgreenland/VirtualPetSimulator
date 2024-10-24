@@ -25,6 +25,7 @@ public class EatAction : IPetAction
 
     public async Task<int> Execute()
     {
+        _pet.CurrentAction = eatAction;
         int portionsEaten;
         if (!_validator.IsNonNegative(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
         {
@@ -34,11 +35,13 @@ public class EatAction : IPetAction
 
         portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
         var eatMessage = $"{_pet.Name} enjoying his food";
-        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage, _pet.GetAsciiArt(eatAction));
+        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage, _pet.GetAsciiArt());
 
         _pet.ChangeHunger(-portionsEaten);
+        await _userCommunication.ShowProgress(eatingOperation);
         await eatingOperation;
 
+        _userCommunication.ActivityMessage = "";
         return portionsEaten;
     }
 }

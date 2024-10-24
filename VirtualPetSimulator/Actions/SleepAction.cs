@@ -29,6 +29,7 @@ public class SleepAction : IPetAction
 
     public async Task<int> Execute()
     {
+        _pet.CurrentAction = sleepAction;
         var sleepMessage = $"{_pet.Name} is napping";
         var oneSleep = 1;
         int amountSlept = 0;
@@ -40,13 +41,19 @@ public class SleepAction : IPetAction
 
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
         {
-            await _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt(sleepAction));
+            var operation = _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt());
+            var progress = _userCommunication.ShowProgress(operation);
             _pet.ChangeEnergy(oneSleep);
             amountSlept += oneSleep;
+            _sleepSpecified--;
 
-            _sleepSpecified--;            
+            await operation;
+            await progress;
         }
 
+        _userCommunication.ActivityMessage = "";
         return amountSlept;
+
+        // 
     }
 }

@@ -1,5 +1,4 @@
 ﻿using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Helpers.Enumerations;
 
 namespace VirtualPetSimulator.Models;
 

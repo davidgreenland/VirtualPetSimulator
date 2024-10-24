@@ -8,6 +8,7 @@ public abstract class Pet : IPet
 {
     public string Name { get; }
     public IDictionary<PetActions, string> AsciiArt { get; }
+    public PetActions CurrentAction { get; set; } = PetActions.Sit;
 
     private int _energy;
     public int Energy
@@ -54,8 +55,8 @@ public abstract class Pet : IPet
         Happiness += value;
     }
 
-    public string GetAsciiArt(PetActions action)
+    public string GetAsciiArt()
     {
-        return AsciiArt[action];
+        return AsciiArt[CurrentAction];
     }
 }
