@@ -37,6 +37,7 @@ public class PlayAction : IPetAction
         var playMessage = $"{_pet.Name} is having a good play";
         var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage, _pet.GetAsciiArt());
         var progress = _userCommunication.ShowProgress(playingOperation);
+
         _pet.ChangeHappiness(PlayAmountRequest);
         playAmount = PlayAmountRequest;
         await playingOperation;

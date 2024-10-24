@@ -43,6 +43,7 @@ public class SleepAction : IPetAction
         {
             var operation = _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt());
             var progress = _userCommunication.ShowProgress(operation);
+
             _pet.ChangeEnergy(oneSleep);
             amountSlept += oneSleep;
             _sleepSpecified--;
@@ -53,7 +54,5 @@ public class SleepAction : IPetAction
 
         _userCommunication.ActivityMessage = "";
         return amountSlept;
-
-        // 
     }
 }
