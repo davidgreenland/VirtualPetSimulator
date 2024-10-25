@@ -12,21 +12,22 @@ public class PlayAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly ITimeService _timeService;
     private readonly PetAction playAction = PetAction.Play;
 
     public int PlayAmountRequest { get; }
 
-    public PlayAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int playAmountRequest = 1)
+    public PlayAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int playAmountRequest = 1)
     {
         _pet = pet;
         _validator = validator;
         _userCommunication = userCommunication;
+        _timeService = timeService;
         PlayAmountRequest = playAmountRequest;
     }
 
     public async Task<int> Execute()
     {
-        _pet.CurrentAction = playAction;
         int playAmount;
         if (!_validator.IsNonNegative(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
         {
@@ -34,17 +35,20 @@ public class PlayAction : IPetAction
             return playAmount;
         }
 
-        var playMessage = $"{_pet.Name} is having a good play";
-        var playingOperation = _userCommunication.RunOperation(PlayAmountRequest, playMessage, _pet.GetAsciiArt());
+        _pet.CurrentAction = playAction;
+        _userCommunication.ActivityMessage = $"{_pet.Name} is having a good play";
+        playAmount = PlayAmountRequest;
+        var playDuration = PlayAmountRequest * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
+        var playingOperation = _timeService.WaitForOperation(playDuration);
+
+        _userCommunication.RenderScreen(_pet);
         var progress = _userCommunication.ShowProgress(playingOperation);
 
-        _pet.ChangeHappiness(PlayAmountRequest);
-        playAmount = PlayAmountRequest;
-        await playingOperation;
-        await progress;
-        // todo: play reduces energy
+        await Task.WhenAll(playingOperation, progress);
 
-        _userCommunication.ActivityMessage = "";
+        // todo: play reduces energy
+        _pet.ChangeHappiness(PlayAmountRequest);
+        _userCommunication.ActivityMessage = string.Empty;
         return playAmount;
     }
 }

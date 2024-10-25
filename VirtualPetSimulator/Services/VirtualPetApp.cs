@@ -1,7 +1,7 @@
 using VirtualPetSimulator.Actions;
 using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -11,19 +11,20 @@ public class VirtualPetApp
 {
     private readonly IPet _pet;
     private readonly Dictionary<char, PetAction> _petActions;
-    private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly ITimeService _timeService;
 
-    public VirtualPetApp(IPet pet, Dictionary<char, PetAction> petActions, IValidator validator, IUserCommunication userCommunication)
+    public VirtualPetApp(IPet pet, Dictionary<char, PetAction> petActions, IUserCommunication userCommunication, ITimeService timeService)
     {
         _pet = pet;
         _petActions = petActions;
-        _validator = validator;
         _userCommunication = userCommunication;
+        _timeService = timeService;
     }
 
     public async Task StartApp()
     {
+        // var timer = _timeService.StartTimer(x => PetUpdaterService.UpdatePetAttributes(_pet));
         bool running = true;
         PetAction userChoice;
         _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator");
@@ -32,7 +33,7 @@ public class VirtualPetApp
 
         while (running)
         {
-            _userCommunication.RenderScreen();
+            _userCommunication.RenderScreen(_pet);
             userChoice = GetUserChoice();
 
             IPetAction? petAction = null;
@@ -40,13 +41,13 @@ public class VirtualPetApp
             switch (userChoice)
             {
                 case PetAction.Sleep:
-                    petAction = new SleepAction(_pet, _validator, _userCommunication);
+                    petAction = new SleepAction(_pet, new Validator(), _userCommunication, _timeService);
                     break;
                 case PetAction.Eat:
-                    petAction = new EatAction(_pet, _validator, _userCommunication);
+                    petAction = new EatAction(_pet, new Validator(), _userCommunication, _timeService);
                     break;
                 case PetAction.Play:
-                    petAction = new PlayAction(_pet, _validator, _userCommunication);
+                    petAction = new PlayAction(_pet, new Validator(), _userCommunication, _timeService);
                     break;
                 default:
                     _pet.CurrentAction = PetAction.Sit;
@@ -61,12 +62,17 @@ public class VirtualPetApp
         }
     }
 
+    //private void RunPetUpdate()
+    //{
+    //    PetUpdaterService.UpdatePetAttributes(_pet)
+    //}
+
     private PetAction GetUserChoice()
     {
         char userChoice;
         do
         {
-            _userCommunication.RenderScreen();
+            _userCommunication.RenderScreen(_pet);
             ShowOptions();
             userChoice = _userCommunication.GetUserChoice("Choose an option: ");
         }

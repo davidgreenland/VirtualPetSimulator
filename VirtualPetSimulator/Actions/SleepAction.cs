@@ -12,25 +12,27 @@ public class SleepAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly ITimeService _timeService;
     private readonly PetAction sleepAction = PetAction.Sleep;
     private int _sleepSpecified = AttributeValue.MAX;
 
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int sleepSpecified) : this(pet, validator, userCommunication)
+    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int sleepSpecified) : this(pet, validator, userCommunication, timeService)
     {
         _sleepSpecified = sleepSpecified;
     }
 
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication)
+    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService)
     {
         _pet = pet;
         _validator = validator;
         _userCommunication = userCommunication;
+        _timeService = timeService;
     }
 
     public async Task<int> Execute()
     {
         _pet.CurrentAction = sleepAction;
-        var sleepMessage = $"{_pet.Name} is napping";
+        _userCommunication.ActivityMessage = $"{_pet.Name} is napping";
         var oneSleep = 1;
         int amountSlept = 0;
 
@@ -41,18 +43,20 @@ public class SleepAction : IPetAction
 
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
         {
-            var operation = _userCommunication.RunOperation(oneSleep, sleepMessage);
-            var progress = _userCommunication.ShowProgress(operation);
+            var sleepDuration = oneSleep * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
+            var operation = _timeService.WaitForOperation(sleepDuration);
 
-            _pet.ChangeEnergy(oneSleep);
+            _userCommunication.RenderScreen(_pet);
+            var progress = _userCommunication.ShowProgress(operation);
             amountSlept += oneSleep;
             _sleepSpecified--;
 
             await operation;
             await progress;
+            _pet.ChangeEnergy(oneSleep);
         }
 
-        _userCommunication.ActivityMessage = "";
+        _userCommunication.ActivityMessage = string.Empty;
         return amountSlept;
     }
 }

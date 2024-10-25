@@ -6,9 +6,9 @@ public interface IPet
 {
     string Name { get; }
     PetAction CurrentAction { get; set; }
-    int Energy { get; set; }
-    int Happiness { get; set; }
-    int Hunger { get; set; }
+    int Energy { get; }
+    int Happiness { get; }
+    int Hunger { get; }
 
     void ChangeHunger(int value);
     void ChangeEnergy(int value);

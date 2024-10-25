@@ -3,4 +3,6 @@
 public interface ITimeService
 {
     Task WaitForOperation(int milliseconds);
+
+    Timer StartTimer(TimerCallback timerCallback);
 }

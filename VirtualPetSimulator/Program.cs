@@ -5,7 +5,8 @@ using VirtualPetSimulator.Services;
 
 var cat = new CatPet("Steve");
 var validator = new Validator();
-var userCommunication = new ConsoleUserCommunicationService(cat, new TimeService());
+var timeService = new TimeService();
+var userCommunication = new ConsoleUserCommunicationService(new TimeService(), new CatAsciiArtService());
 
 var app = new VirtualPetApp(cat, 
     new Dictionary<char, PetAction> { 
@@ -13,6 +14,6 @@ var app = new VirtualPetApp(cat,
         { 'E', PetAction.Eat }, 
         { 'P', PetAction.Play } 
     },
-    validator, userCommunication);
+    userCommunication, timeService);
 
 await app.StartApp();

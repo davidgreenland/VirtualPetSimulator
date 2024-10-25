@@ -13,18 +13,8 @@ public class ConsoleUserCommunicationService : IUserCommunication
 
     public ConsoleUserCommunicationService(ITimeService timeService, IAsciiArtService AsciiArtService)
     {
-        pet = pet;
         _timeService = timeService;
         _asciiArtService = AsciiArtService;
-    }
-
-    public Task RunOperation(int repetitions, string message)
-    {
-        ActivityMessage = message;
-        var delay = repetitions * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
-        var operation = _timeService.WaitForOperation(delay);
-
-        return operation;
     }
 
     public void RenderScreen(IPet pet)
@@ -48,7 +38,6 @@ public class ConsoleUserCommunicationService : IUserCommunication
     public async Task ShowProgress(Task task)
     {
         int interval = 100;
-        RenderScreen();
 
         while (!task.IsCompleted)
         {

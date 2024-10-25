@@ -12,13 +12,15 @@ public class EatAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
+    private readonly ITimeService _timeService;
     private readonly PetAction eatAction = PetAction.Eat;
     public int FoodAmount { get; }
 
-    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int foodAmount = 1)
+    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int foodAmount = 1)
     {
         _pet = pet;
         _validator = validator;
+        _timeService = timeService;
         _userCommunication = userCommunication;
         FoodAmount = foodAmount;
     }
@@ -34,14 +36,19 @@ public class EatAction : IPetAction
         }
 
         portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
-        var eatMessage = $"{_pet.Name} enjoying his food";
-        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage, _pet.GetAsciiArt());
+        _userCommunication.ActivityMessage = $"{_pet.Name} enjoying his food";
+
+        var eatingDuration = portionsEaten * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
+        var eatingOperation = _timeService.WaitForOperation(eatingDuration);
+        var progress = _userCommunication.ShowProgress(eatingOperation);
+
+        _userCommunication.RenderScreen(_pet);
+
+        await eatingOperation;
+        await progress;
 
         _pet.ChangeHunger(-portionsEaten);
-        await _userCommunication.ShowProgress(eatingOperation);
-        await eatingOperation;
-
-        _userCommunication.ActivityMessage = "";
+        _userCommunication.ActivityMessage = string.Empty;
         return portionsEaten;
     }
 }
