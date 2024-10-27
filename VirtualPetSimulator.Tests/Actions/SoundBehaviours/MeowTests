@@ -1,0 +1,16 @@
+using VirtualPetSimulator.Actions.SoundBehaviours;
+
+namespace VirtualPetSimulator.Tests.Actions.SoundBehaviours;
+
+public class MeowTests
+{
+    [Test]
+    public void MakeSound_WhenCalled_ReturnsCorrectly()
+    {
+        ISoundBehavior meow = new Meow();
+
+        string sound = meow.MakeSound();
+
+        Assert.AreEqual("Meow!", sound);
+    }
+}

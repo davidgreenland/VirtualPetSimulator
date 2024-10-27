@@ -1,4 +1,5 @@
-﻿using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models.Interfaces;
 
@@ -7,6 +8,7 @@ namespace VirtualPetSimulator.Models;
 public abstract class Pet : IPet
 {
     public string Name { get; }
+    protected ISoundBehaviour _soundBehaviour;
     public IDictionary<PetActions, string> AsciiArt { get; }
     public PetActions CurrentAction { get; set; } = PetActions.Sit;
 
@@ -31,13 +33,15 @@ public abstract class Pet : IPet
         set => _happiness = Math.Clamp(value, AttributeValue.MIN, AttributeValue.MAX);
     }
 
-    public Pet(string name, IDictionary<PetActions, string> asciiArt, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
+    public Pet(string name, ISoundBehaviour soundBehaviour, IDictionary<PetActions, string> asciiArt, int energy = AttributeValue.DEFAULT, int hunger = AttributeValue.DEFAULT, int happiness = AttributeValue.DEFAULT)
     {
         Name = name;
+        _soundBehaviour = soundBehaviour;
         AsciiArt = asciiArt;
         Energy = energy;
         Hunger = hunger;
         Happiness = happiness;
+
     }
 
     public void ChangeEnergy(int value)
@@ -55,8 +59,7 @@ public abstract class Pet : IPet
         Happiness += value;
     }
 
-    public string GetAsciiArt()
-    {
-        return AsciiArt[CurrentAction];
-    }
+    public string GetAsciiArt() => AsciiArt[CurrentAction];
+
+    public string PerformSound() => _soundBehaviour.MakeSound();
 }
