@@ -13,4 +13,5 @@ public interface IPet
     void ChangeHunger(int value);
     void ChangeEnergy(int value);
     void ChangeHappiness(int value);
+    string PerformSound();
 }

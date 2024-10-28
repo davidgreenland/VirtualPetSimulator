@@ -1,10 +1,10 @@
-﻿using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Actions.SoundBehaviours;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Services;
 
-var cat = new CatPet("Steve");
-var validator = new Validator();
+var cat = new CatPet("Steve", new Meow());
 var timeService = new TimeService();
 var userCommunication = new ConsoleUserCommunicationService(new TimeService(), new CatAsciiArtService());
 

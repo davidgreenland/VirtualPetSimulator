@@ -66,6 +66,7 @@ public class VirtualPetApp
     {
         PetUpdaterService.UpdatePetAttributes(_pet);
         _userCommunication.RenderAttributes(_pet);
+        _userCommunication.DisplaySound(_pet);
     }
 
     private PetAction GetUserChoice()

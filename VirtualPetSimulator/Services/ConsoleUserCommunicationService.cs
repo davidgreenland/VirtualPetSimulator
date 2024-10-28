@@ -39,6 +39,30 @@ public class ConsoleUserCommunicationService : IUserCommunication
         Console.SetCursorPosition(Math.Max(cursorXPosition, Console.CursorLeft), Math.Max(cursorYPosition, Console.CursorTop));
     }
 
+    public async void DisplaySound(IPet pet)
+    {
+        int cursorXPosition = Console.CursorLeft;
+        int cursorYPosition = Console.CursorTop;
+        int soundCursorX = 20;
+        int soundCursorY = 4;
+
+        if (pet.CurrentAction == PetAction.Sit)
+        {
+            Console.SetCursorPosition(soundCursorX, soundCursorY);
+            Console.Write(pet.PerformSound());
+            Console.SetCursorPosition(cursorXPosition, cursorYPosition);
+        }
+
+        await _timeService.WaitForOperation(3000);
+
+        if (pet.CurrentAction == PetAction.Sit)
+        {
+            Console.SetCursorPosition(soundCursorX, soundCursorY);
+            Console.Write(new string(' ', pet.PerformSound().Length));
+            Console.SetCursorPosition(cursorXPosition, cursorYPosition);
+        }
+    }
+
     public void SetDisplayMessageToOptions()
     {
         DisplayMessage = _applicationOptions;

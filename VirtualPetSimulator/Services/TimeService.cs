@@ -16,6 +16,6 @@ public class TimeService : ITimeService
         var startNow = 0;
         var interval = 5000;
 
-        return new Timer(timerCallback, null, startNow, interval);
+        return new Timer(timerCallback, null, 4000, interval);
     }
 }
