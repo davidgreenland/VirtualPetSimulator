@@ -23,11 +23,20 @@ public class ConsoleUserCommunicationService : IUserCommunication
     public void RenderScreen(IPet pet)
     {
         ClearScreen();
+        RenderAttributes(pet);
+        Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
+        Console.WriteLine(DisplayMessage);
+    }
+
+    public void RenderAttributes(IPet pet)
+    {
+        int cursorXPosition = Console.CursorLeft;
+        int cursorYPosition = Console.CursorTop;
+        Console.SetCursorPosition(0, 0);
         Console.Write($"Energy: {new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}");
         Console.Write($"Hunger: {new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
         Console.Write($"Happiness: {new string('#', pet.Happiness)}\n\n");
-        Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
-        Console.WriteLine(DisplayMessage);
+        Console.SetCursorPosition(Math.Max(cursorXPosition, Console.CursorLeft), Math.Max(cursorYPosition, Console.CursorTop));
     }
 
     public void SetDisplayMessageToOptions()

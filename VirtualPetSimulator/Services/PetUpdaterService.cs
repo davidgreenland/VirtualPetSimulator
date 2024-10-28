@@ -7,6 +7,5 @@ public class PetUpdaterService
     public static void UpdatePetAttributes(IPet pet)
     {
         pet.ChangeEnergy(-1);
-        Console.WriteLine("Updated");
     }
 }

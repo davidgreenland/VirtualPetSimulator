@@ -8,6 +8,7 @@ public interface IUserCommunication
 
     public void SetDisplayMessage(string message);
     void RenderScreen(IPet pet);
+    void RenderAttributes(IPet pet);
     char GetUserChoice(string prompt);
     Task ShowProgress(Task task);
     void ClearScreen();
