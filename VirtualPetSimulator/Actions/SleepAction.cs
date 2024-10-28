@@ -43,7 +43,7 @@ public class SleepAction : IPetAction
 
         while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
         {
-            var sleepDuration = oneSleep * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
+            var sleepDuration = oneSleep * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
             var operation = _timeService.WaitForOperation(sleepDuration);
 
             _userCommunication.RenderScreen(_pet);

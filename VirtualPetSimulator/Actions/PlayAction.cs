@@ -38,7 +38,7 @@ public class PlayAction : IPetAction
         _pet.CurrentAction = playAction;
         _userCommunication.SetDisplayMessage($"{_pet.Name} is having a good play");
         playAmount = PlayAmountRequest;
-        var playDuration = PlayAmountRequest * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
+        var playDuration = PlayAmountRequest * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
         var playingOperation = _timeService.WaitForOperation(playDuration);
 
         _userCommunication.RenderScreen(_pet);

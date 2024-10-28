@@ -11,13 +11,13 @@ public class CatASciiArtServiceTests
     private CatAsciiArtService CatAsciiArtService;
 
     [Test]
-    public void GetAsciiForInput_WhenGivenValidAction_ReturnsString()
+    public void GetAsciiForAction_WhenGivenValidAction_ReturnsString()
     {
         var artService = new CatAsciiArtService();
         var action = PetAction.Eat;
 
-        var catPic = artService.GetAsciiForInput(action);
+        var catPic = artService.GetAsciiForAction(action);
 
-        Assert.That(catPic, Is.EqualTo(It.IsAny<string>()));
+        Assert.That(catPic, Is.Not.Null.Or.Empty);
     }
 }
