@@ -36,7 +36,7 @@ public class EatAction : IPetAction
         }
 
         portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
-        _userCommunication.ActivityMessage = $"{_pet.Name} enjoying his food";
+        _userCommunication.SetDisplayMessage($"{_pet.Name} enjoying his food");
 
         var eatingDuration = portionsEaten * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
         var eatingOperation = _timeService.WaitForOperation(eatingDuration);
@@ -48,7 +48,7 @@ public class EatAction : IPetAction
         await progress;
 
         _pet.ChangeHunger(-portionsEaten);
-        _userCommunication.ActivityMessage = string.Empty;
+        _userCommunication.SetDisplayMessageToOptions();
         return portionsEaten;
     }
 }

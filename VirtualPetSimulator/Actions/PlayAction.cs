@@ -36,7 +36,7 @@ public class PlayAction : IPetAction
         }
 
         _pet.CurrentAction = playAction;
-        _userCommunication.ActivityMessage = $"{_pet.Name} is having a good play";
+        _userCommunication.SetDisplayMessage($"{_pet.Name} is having a good play");
         playAmount = PlayAmountRequest;
         var playDuration = PlayAmountRequest * AttributeValue.OPERATION_LENGTH_MILLISECONDS;
         var playingOperation = _timeService.WaitForOperation(playDuration);
@@ -48,7 +48,7 @@ public class PlayAction : IPetAction
 
         // todo: play reduces energy
         _pet.ChangeHappiness(PlayAmountRequest);
-        _userCommunication.ActivityMessage = string.Empty;
+        _userCommunication.SetDisplayMessageToOptions();
         return playAmount;
     }
 }

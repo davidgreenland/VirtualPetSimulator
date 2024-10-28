@@ -32,7 +32,7 @@ public class SleepAction : IPetAction
     public async Task<int> Execute()
     {
         _pet.CurrentAction = sleepAction;
-        _userCommunication.ActivityMessage = $"{_pet.Name} is napping";
+        _userCommunication.SetDisplayMessage($"{_pet.Name} is napping");
         var oneSleep = 1;
         int amountSlept = 0;
 
@@ -56,7 +56,7 @@ public class SleepAction : IPetAction
             _pet.ChangeEnergy(oneSleep);
         }
 
-        _userCommunication.ActivityMessage = string.Empty;
+        _userCommunication.SetDisplayMessageToOptions();
         return amountSlept;
     }
 }

@@ -1,4 +1,4 @@
-﻿using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -9,12 +9,15 @@ public class ConsoleUserCommunicationService : IUserCommunication
     private readonly ITimeService _timeService;
     private readonly IAsciiArtService _asciiArtService;
     private const int HEADER_SPACER = 15;
-    public string ActivityMessage { get; set; } = string.Empty;
+    private readonly string _applicationOptions;
+    public string DisplayMessage { get; private set; }
 
-    public ConsoleUserCommunicationService(ITimeService timeService, IAsciiArtService AsciiArtService)
+    public ConsoleUserCommunicationService(ITimeService timeService, IAsciiArtService asciiArtService)
     {
         _timeService = timeService;
-        _asciiArtService = AsciiArtService;
+        _asciiArtService = asciiArtService;
+        _applicationOptions = GetApplicationOptions();
+        DisplayMessage =  _applicationOptions;
     }
 
     public void RenderScreen(IPet pet)
@@ -24,9 +27,34 @@ public class ConsoleUserCommunicationService : IUserCommunication
         Console.Write($"Hunger: {new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
         Console.Write($"Happiness: {new string('#', pet.Happiness)}\n\n");
         Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
-        Console.WriteLine(ActivityMessage);
+        Console.WriteLine(DisplayMessage);
     }
 
+    public void SetDisplayMessageToOptions()
+    {
+        DisplayMessage = _applicationOptions;
+    }
+
+    public void SetDisplayMessage(string message)
+    {
+        DisplayMessage = message;
+    }
+
+    private string GetApplicationOptions()
+    {
+        // todo: deal with null in pet actions dictionary
+        string options = "";
+        foreach (var action in Enum.GetNames(typeof(PetAction)))
+        {
+            if (action != "Sit")
+            {
+                var actionKey = action[0];
+                options += $"[{actionKey}]{action.Substring(1)}\n";
+            }
+        }
+
+        return options;
+    }
     public char GetUserChoice(string prompt)
     {
         Console.Write(prompt);

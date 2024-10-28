@@ -24,12 +24,12 @@ public class VirtualPetApp
 
     public async Task StartApp()
     {
-        // var timer = _timeService.StartTimer(x => PetUpdaterService.UpdatePetAttributes(_pet));
         bool running = true;
         PetAction userChoice;
         _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator");
         _userCommunication.ShowMessage("Press any key to begin");
         _userCommunication.WaitForUser();
+        var timer = _timeService.StartTimer(x => RunPetUpdate());
 
         while (running)
         {
@@ -62,10 +62,11 @@ public class VirtualPetApp
         }
     }
 
-    //private void RunPetUpdate()
-    //{
-    //    PetUpdaterService.UpdatePetAttributes(_pet)
-    //}
+    private void RunPetUpdate()
+    {
+        PetUpdaterService.UpdatePetAttributes(_pet);
+        _userCommunication.RenderScreen(_pet);
+    }
 
     private PetAction GetUserChoice()
     {
@@ -73,25 +74,10 @@ public class VirtualPetApp
         do
         {
             _userCommunication.RenderScreen(_pet);
-            ShowOptions();
             userChoice = _userCommunication.GetUserChoice("Choose an option: ");
         }
         while (!_petActions.ContainsKey(userChoice));
 
         return _petActions[userChoice];
-    }
-
-    private void ShowOptions()
-    {
-        // todo: deal with null in pet actions dictionary
-        var count = 0;
-        foreach (var item in _petActions)
-        {
-            var optionName = Enum.GetNames(typeof(PetAction));
-            var actionKey = optionName[count][0];
-
-            _userCommunication.ShowMessage($"[{actionKey}]{optionName[count].Substring(1)}");
-            count++;
-        }
     }
 }

@@ -4,7 +4,9 @@ namespace VirtualPetSimulator.Services.Interfaces;
 
 public interface IUserCommunication
 {
-    string ActivityMessage { get; set; }
+    public void SetDisplayMessageToOptions();
+
+    public void SetDisplayMessage(string message);
     void RenderScreen(IPet pet);
     char GetUserChoice(string prompt);
     Task ShowProgress(Task task);
