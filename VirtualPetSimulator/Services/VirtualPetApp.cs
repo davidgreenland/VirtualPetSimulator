@@ -1,5 +1,6 @@
 using VirtualPetSimulator.Actions;
 using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Factories.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models.Interfaces;
@@ -14,22 +15,36 @@ public class VirtualPetApp
     private readonly Dictionary<char, PetType> _petTypes;
     private readonly IUserCommunication _userCommunication;
     private readonly ITimeService _timeService;
+    private readonly IPetActionFactory _petActionFactory;
 
-    public VirtualPetApp(Dictionary<char, PetAction> petActions, Dictionary<char, PetType> petTypes, IUserCommunication userCommunication, ITimeService timeService)
+    public VirtualPetApp(Dictionary<char, PetAction> petActions, Dictionary<char, PetType> petTypes, IUserCommunication userCommunication, ITimeService timeService, IPetActionFactory petActionFactory)
     {
         _petActions = petActions;
         _petTypes = petTypes;
         _userCommunication = userCommunication;
         _timeService = timeService;
+        _petActionFactory = petActionFactory;
     }
 
-    public PetType ChoosePet()
+    public PetType ChoosePetType()
     {
         _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator\n");
         _userCommunication.ShowMessage(_userCommunication.GetPetChoices());
         var petChoice = GetPetType();
 
         return petChoice;
+    }
+
+    private PetType GetPetType()
+    {
+        char userChoice;
+        do
+        {
+            userChoice = _userCommunication.GetUserChoice("Choose your pet: ");
+        }
+        while (!_petTypes.ContainsKey(userChoice));
+
+        return _petTypes[userChoice];
     }
 
     public string ChooseName()
@@ -52,25 +67,9 @@ public class VirtualPetApp
         while (running)
         {
             _userCommunication.RenderScreen(Pet);
-            userChoice = GetUserChoice();
+            userChoice = GetPetActionChoice();
 
-            IPetAction? petAction = null;
-
-            switch (userChoice)
-            {
-                case PetAction.Sleep:
-                    petAction = new SleepAction(Pet, new Validator(), _userCommunication, _timeService);
-                    break;
-                case PetAction.Eat:
-                    petAction = new EatAction(Pet, new Validator(), _userCommunication, _timeService);
-                    break;
-                case PetAction.Play:
-                    petAction = new PlayAction(Pet, new Validator(), _userCommunication, _timeService);
-                    break;
-                default:
-                    Pet.CurrentAction = PetAction.Sit;
-                    break;
-            }
+            var petAction = _petActionFactory.CreatePetAction(Pet, userChoice);
 
             if (petAction != null)
             {
@@ -87,19 +86,7 @@ public class VirtualPetApp
         _userCommunication.DisplaySound(Pet);
     }
 
-    private PetType GetPetType()
-    {
-        char userChoice;
-        do
-        {
-            userChoice = _userCommunication.GetUserChoice("Choose your pet: ");
-        }
-        while (!_petTypes.ContainsKey(userChoice));
-
-        return _petTypes[userChoice];
-    }
-
-    private PetAction GetUserChoice()
+    private PetAction GetPetActionChoice()
     {
         char userChoice;
         do

@@ -1,5 +1,4 @@
-﻿
-using VirtualPetSimulator.Models.Interfaces;
+﻿using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Actions.SoundBehaviours;
