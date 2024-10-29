@@ -1,19 +1,24 @@
-﻿using VirtualPetSimulator.Actions.SoundBehaviours;
-using VirtualPetSimulator.Helpers;
+﻿using VirtualPetSimulator.Factories;
 using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Services;
 
-var cat = new CatPet("Steve", new Meow());
+var petFactory = new PetFactory();
 var timeService = new TimeService();
 var userCommunication = new ConsoleUserCommunicationService(new TimeService(), new CatAsciiArtService());
 
-var app = new VirtualPetApp(cat, 
+var app = new VirtualPetApp(
     new Dictionary<char, PetAction> { 
         { 'S', PetAction.Sleep },
         { 'E', PetAction.Eat }, 
         { 'P', PetAction.Play } 
     },
+    new Dictionary<char, PetType> {
+        { 'C', PetType.Cat },
+    },
     userCommunication, timeService);
 
-await app.StartApp();
+var petType = app.ChoosePet();
+var petName = app.ChooseName();
+var pet = petFactory.CreatePet(petType, petName);
+app.SetPet(pet);
+await app.Run();

@@ -1,5 +1,4 @@
 ﻿using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -29,6 +28,19 @@ public class ConsoleUserCommunicationService : IUserCommunication
         Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(DisplayMessage);
+    }
+    public string ReadInput(string prompt)
+    {
+        string? input;
+
+        do
+        {
+            Console.Write(prompt);
+            input = Console.ReadLine();
+        }
+        while (string.IsNullOrEmpty(input));
+
+        return input;
     }
 
     public void RenderAttributes(IPet pet)
@@ -103,6 +115,20 @@ public class ConsoleUserCommunicationService : IUserCommunication
 
         return options;
     }
+
+    public string GetPetChoices()
+    {
+        string petChoices = "";
+        foreach (var pet in Enum.GetNames(typeof(PetType)))
+        {
+            var actionKey = pet[0];
+            petChoices += $"[{actionKey}]{pet.Substring(1)}\n";
+
+        }
+
+        return petChoices;
+    }
+
     public char GetUserChoice(string prompt)
     {
         Console.Write(prompt);
