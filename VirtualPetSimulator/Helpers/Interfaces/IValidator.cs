@@ -2,5 +2,5 @@
 
 public interface IValidator
 {
-    bool IsNonNegative(int input, string paramName);
+    bool Validate(int input, string paramName);
 }

@@ -4,7 +4,12 @@ namespace VirtualPetSimulator.Helpers;
 
 public class Validator : IValidator
 {
-    public bool IsNonNegative(int input, string paramName)
+    public bool Validate(int input, string paramName)
+    {
+        return IsNonNegative(input, paramName);
+    }
+
+    private bool IsNonNegative(int input, string paramName)
     {
         if (input < 0)
         {

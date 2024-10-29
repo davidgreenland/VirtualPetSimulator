@@ -29,7 +29,7 @@ public class EatAction : IPetAction
     {
         _pet.CurrentAction = eatAction;
         int portionsEaten;
-        if (!_validator.IsNonNegative(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
+        if (!_validator.Validate(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
         {
             portionsEaten = 0;
             return portionsEaten;

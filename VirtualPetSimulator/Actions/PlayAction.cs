@@ -29,7 +29,7 @@ public class PlayAction : IPetAction
     public async Task<int> Execute()
     {
         int playAmount;
-        if (!_validator.IsNonNegative(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
+        if (!_validator.Validate(PlayAmountRequest, nameof(PlayAmountRequest)) || _pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
         {
             playAmount = 0;
             return playAmount;

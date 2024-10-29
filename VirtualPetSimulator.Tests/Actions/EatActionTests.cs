@@ -27,8 +27,7 @@ public class EatActionTests
 
         _testPet.Setup(pet => pet.Name).Returns("Simon");
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.DEFAULT);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(true);
         _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
     }
 
@@ -126,6 +125,20 @@ public class EatActionTests
 
         await _eatAction.Execute();
 
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.Validate(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+    }
+
+    [TestCase(-1)]
+    [TestCase(-3)]
+    [TestCase(-10000)]
+    public async Task Execute_WhenFeedAmountNegative_DoesNotCallChangeHunger(int foodValue)
+    {
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(false);
+
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+
+        await _eatAction.Execute();
+
+        _testPet.Verify(x => x.ChangeHunger(It.IsAny<int>()), Times.Never());
     }
 }

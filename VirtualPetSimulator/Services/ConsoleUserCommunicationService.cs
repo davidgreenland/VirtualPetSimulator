@@ -1,4 +1,5 @@
 ﻿using VirtualPetSimulator.Helpers.Enumerations;
+using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -24,7 +25,9 @@ public class ConsoleUserCommunicationService : IUserCommunication
     {
         ClearScreen();
         RenderAttributes(pet);
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
+        Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(DisplayMessage);
     }
 
@@ -32,11 +35,23 @@ public class ConsoleUserCommunicationService : IUserCommunication
     {
         int cursorXPosition = Console.CursorLeft;
         int cursorYPosition = Console.CursorTop;
+
         Console.SetCursorPosition(0, 0);
-        Console.Write($"Energy: {new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}");
-        Console.Write($"Hunger: {new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
-        Console.Write($"Happiness: {new string('#', pet.Happiness)}\n\n");
+        Console.Write("Energy: ");
+        PrintColor($"{new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}");
+        Console.Write("Hunger: ");
+        PrintColor($"{new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
+        Console.Write("Happiness: ");
+        PrintColor($"{new string('#', pet.Happiness)}");
+        Console.WriteLine("\n");
         Console.SetCursorPosition(Math.Max(cursorXPosition, Console.CursorLeft), Math.Max(cursorYPosition, Console.CursorTop));
+    }
+
+    private void PrintColor(string characters)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write(characters);
+        Console.ResetColor();
     }
 
     public async void DisplaySound(IPet pet)

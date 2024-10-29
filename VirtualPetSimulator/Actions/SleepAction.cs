@@ -36,7 +36,7 @@ public class SleepAction : IPetAction
         var oneSleep = 1;
         int amountSlept = 0;
 
-        if (!_validator.IsNonNegative(_sleepSpecified, nameof(_sleepSpecified)))
+        if (!_validator.Validate(_sleepSpecified, nameof(_sleepSpecified)))
         {
             return amountSlept;
         }

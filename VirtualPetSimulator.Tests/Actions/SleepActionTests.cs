@@ -26,8 +26,7 @@ public class SleepActionTests
 
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.DEFAULT);
         _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(true);
     }
 
     [Test]
@@ -130,7 +129,7 @@ public class SleepActionTests
 
         await _sleepAction.Execute();
 
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.Validate(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
     }
 
     [TestCase(9, 3, 1)]

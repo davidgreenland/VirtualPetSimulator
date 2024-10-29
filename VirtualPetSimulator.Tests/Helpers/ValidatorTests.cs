@@ -17,21 +17,21 @@ public class ValidatorTests
     [TestCase(-10)]
     [TestCase(-109)]
     [TestCase(-34567)]
-    public void ValidateNonNegative_WhenGivenNegativeValue_ThrowsException(int negativeParam)
+    public void Validate_WhenGivenNegativeValue_IsInvalid(int negativeParam)
     {
         var paramName = "value";
 
-        Assert.That(_validator.IsNonNegative(negativeParam, paramName), Is.EqualTo(false));
+        Assert.That(_validator.Validate(negativeParam, paramName), Is.EqualTo(false));
     }
 
     [TestCase(1)]
     [TestCase(4)]
     [TestCase(9)]
     [TestCase(490)]
-    public void ValidateNonNegative_WhenGivenPositive_ShouldNotThrow(int positiveParam)
+    public void Validate_WhenGivenPositive_IsValid(int positiveParam)
     {
         var paramName = "value";
 
-        Assert.That(_validator.IsNonNegative(positiveParam, paramName), Is.EqualTo(true));
+        Assert.That(_validator.Validate(positiveParam, paramName), Is.EqualTo(true));
     }
 }

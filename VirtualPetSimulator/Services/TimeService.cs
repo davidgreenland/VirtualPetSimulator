@@ -1,5 +1,4 @@
-﻿using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Services.Interfaces;
+﻿using VirtualPetSimulator.Services.Interfaces;
 
 namespace VirtualPetSimulator.Services;
 
@@ -13,9 +12,9 @@ public class TimeService : ITimeService
 
     public Timer StartTimer(TimerCallback timerCallback)
     {
-        var startNow = 0;
+        var startDelay = 4000;
         var interval = 5000;
 
-        return new Timer(timerCallback, null, 4000, interval);
+        return new Timer(timerCallback, null, startDelay, interval);
     }
 }
