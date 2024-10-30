@@ -1,11 +1,11 @@
-﻿using VirtualPetSimulator.Actions.Interfaces;
-using VirtualPetSimulator.Helpers.Enumerations;
+﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 
 namespace VirtualPetSimulator.Factories.Interfaces
 {
     public interface IPetActionFactory
     {
-        IPetAction CreatePetAction(IPet pet, PetAction selectedAction);
+        IPetAction CreatePetAction(IPet pet, PetAction selectedAction, ITimer timer);
     }
 }

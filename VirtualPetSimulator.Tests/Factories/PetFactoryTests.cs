@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using System.ComponentModel;
 using VirtualPetSimulator.Factories;
-using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models;
+using VirtualPetSimulator.Models.Enums;
 
 namespace VirtualPetSimulator.Tests.Factories;
 

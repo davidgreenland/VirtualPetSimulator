@@ -1,4 +1,4 @@
-﻿using VirtualPetSimulator.Helpers.Enumerations;
+﻿using VirtualPetSimulator.Actions.Enums;
 
 namespace VirtualPetSimulator.Models.Interfaces;
 

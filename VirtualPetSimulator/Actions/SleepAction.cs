@@ -1,9 +1,9 @@
-﻿using VirtualPetSimulator.Actions.Interfaces;
+﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Actions;
 

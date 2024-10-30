@@ -1,8 +1,6 @@
-using VirtualPetSimulator.Actions;
-using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Actions.Enums;
 using VirtualPetSimulator.Factories.Interfaces;
-using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Helpers.Enumerations;
+using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -67,16 +65,22 @@ public class VirtualPetApp
         while (running)
         {
             _userCommunication.RenderScreen(Pet);
+
             userChoice = GetPetActionChoice();
 
-            var petAction = _petActionFactory.CreatePetAction(Pet, userChoice);
-
+            var petAction = _petActionFactory.CreatePetAction(Pet, userChoice, timer);
             if (petAction != null)
             {
                 await petAction.Execute();
                 Pet.CurrentAction = PetAction.Sit;
             }
+
+            if (userChoice == PetAction.Exit)
+            {
+                running = false;
+            }
         }
+
     }
 
     private void RunPetUpdate()

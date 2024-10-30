@@ -1,4 +1,4 @@
-﻿namespace VirtualPetSimulator.Helpers.Interfaces;
+﻿namespace VirtualPetSimulator.Validators.Interfaces;
 
 public interface IValidator
 {

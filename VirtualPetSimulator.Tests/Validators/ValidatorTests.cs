@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using VirtualPetSimulator.Helpers;
+using VirtualPetSimulator.Validators;
 
-namespace VirtualPetSimulator.Tests.Helpers;
+namespace VirtualPetSimulator.Tests.Validators;
 
 public class ValidatorTests
 {

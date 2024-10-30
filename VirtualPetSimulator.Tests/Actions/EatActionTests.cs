@@ -2,9 +2,9 @@
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
 using VirtualPetSimulator.Actions;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Actions;
 
@@ -83,30 +83,32 @@ public class EatActionTests
         Assert.That(await portionsEaten, Is.EqualTo(expected));
     }
 
-    [TestCase(1, -1)]
-    [TestCase(2, -2)]
-    [TestCase(4, -4)]
-    [TestCase(7, -6)]
-    [TestCase(11, -6)]
-    [TestCase(23, -6)]
-    public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue, int expected)
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(4)]
+    [TestCase(7)]
+    [TestCase(11)]
+    [TestCase(23)]
+    public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue)
     {
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+        var expected = -Math.Min(AttributeValue.DEFAULT, foodValue);
 
         await _eatAction.Execute();
 
         _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == expected)), Times.Once());
     }
 
-    [TestCase(1, 1)]
-    [TestCase(2, 2)]
-    [TestCase(4, 4)]
-    [TestCase(7, 6)]
-    [TestCase(11, 6)]
-    [TestCase(23, 6)]
-    public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue, int amountEaten)
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(4)]
+    [TestCase(7)]
+    [TestCase(11)]
+    [TestCase(23)]
+    public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue)
     {
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+        var amountEaten = Math.Min(foodValue, AttributeValue.DEFAULT);
         var expected = amountEaten * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
 
         await _eatAction.Execute();

@@ -1,9 +1,10 @@
 ﻿using Moq;
 using NUnit.Framework;
+using VirtualPetSimulator.Actions.Enums;
 using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Factories.Interfaces;
-using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models;
+using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services;
 using VirtualPetSimulator.Services.Interfaces;
@@ -14,10 +15,10 @@ class VirtualPetAppTests
 {
     private VirtualPetApp _app;
     private Mock<IPet> _testPet;
-    private Mock<ISoundBehaviour> _soundBehaviourMock;
     private Mock<IUserCommunication> _userCommunicationMock;
     private Mock<ITimeService> _timeServiceMock;
     private Mock<IPetActionFactory> _actionFactoryMock;
+    private Mock<ISoundAction> _soundBehaviourMock;
 
     [SetUp]
     public void SetUp()
@@ -25,7 +26,8 @@ class VirtualPetAppTests
         _testPet = new Mock<IPet>();
         _userCommunicationMock = new Mock<IUserCommunication>();
         _timeServiceMock = new Mock<ITimeService>();
-        _soundBehaviourMock = new Mock<ISoundBehaviour>();
+        _soundBehaviourMock = new Mock<ISoundAction>();
+        _actionFactoryMock = new Mock<IPetActionFactory>();
 
         _app = new VirtualPetApp(new Dictionary<char, PetAction>
             {
@@ -79,10 +81,10 @@ class VirtualPetAppTests
         Assert.That(_app.Pet.Name, Is.EqualTo(petName));
     }
 
-    [Test]
-    public async void Run_()
-    {
+    //[Test]
+    //public async void Run_()
+    //{
 
-    }
+    //}
 
 }

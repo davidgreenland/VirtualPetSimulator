@@ -1,6 +1,6 @@
 ﻿namespace VirtualPetSimulator.Actions.Interfaces;
 
-public interface ISoundBehaviour
+public interface ISoundAction
 {
     string MakeSound();
 }

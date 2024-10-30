@@ -1,8 +1,8 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 
-namespace VirtualPetSimulator.Actions.SoundBehaviours;
+namespace VirtualPetSimulator.Actions;
 
-public class Bark : ISoundBehaviour
+public class BarkAction : ISoundAction
 {
     public string MakeSound()
     {

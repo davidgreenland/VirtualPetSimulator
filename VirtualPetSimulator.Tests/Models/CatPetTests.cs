@@ -9,13 +9,13 @@ namespace VirtualPetSimulator.Tests.Models;
 public class CatPetTests
 {
     private CatPet _defaultCatPet;
-    private Mock<ISoundBehaviour> _soundBehaviour;
+    private Mock<ISoundAction> _soundBehaviour;
     private const int SINGLE_INCREMENT = 1;
 
     [SetUp]
     public void SetUp()
     {
-        _soundBehaviour = new Mock<ISoundBehaviour>();
+        _soundBehaviour = new Mock<ISoundAction>();
         _soundBehaviour.Setup(x => x.MakeSound()).Returns("Meow");
         _defaultCatPet = new CatPet("Simon", _soundBehaviour.Object);
     }

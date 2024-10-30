@@ -1,4 +1,5 @@
-﻿using VirtualPetSimulator.Helpers.Enumerations;
+﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -110,6 +111,11 @@ public class ConsoleUserCommunicationService : IUserCommunication
             {
                 var actionKey = action[0];
                 options += $"[{actionKey}]{action.Substring(1)}\n";
+            }
+
+            if (action == "Exit")
+            {
+                options += "E[x]it";
             }
         }
 

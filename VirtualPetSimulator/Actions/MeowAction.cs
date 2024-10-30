@@ -1,8 +1,8 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 
-namespace VirtualPetSimulator.Actions.SoundBehaviours;
+namespace VirtualPetSimulator.Actions;
 
-public class Meow: ISoundBehaviour
+public class MeowAction : ISoundAction
 {
     public string MakeSound()
     {

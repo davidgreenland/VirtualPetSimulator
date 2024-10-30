@@ -2,9 +2,9 @@
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
 using VirtualPetSimulator.Actions;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Actions;
 

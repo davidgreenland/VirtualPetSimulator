@@ -2,10 +2,9 @@
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
 using VirtualPetSimulator.Actions;
-using VirtualPetSimulator.Helpers.Enumerations;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Actions;
 
@@ -32,13 +31,11 @@ public class PlayActionTests
         _testPet.Setup(x => x.Happiness).Returns(AttributeValue.DEFAULT);
         _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
         _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(true);
-        //_validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
     }
 
     [Test]
     public async Task Execute_WhenCalled_IncrementsHappiness()
     {
-
         var playLength = _playAction.Execute();
 
         Assert.That(await playLength, Is.EqualTo(DEFAULT_PLAY_VALUE));

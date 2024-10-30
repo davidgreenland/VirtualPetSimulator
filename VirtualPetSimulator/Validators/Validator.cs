@@ -1,6 +1,6 @@
-﻿using VirtualPetSimulator.Helpers.Interfaces;
+﻿using VirtualPetSimulator.Validators.Interfaces;
 
-namespace VirtualPetSimulator.Helpers;
+namespace VirtualPetSimulator.Validators;
 
 public class Validator : IValidator
 {

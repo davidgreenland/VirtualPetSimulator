@@ -1,8 +1,8 @@
 ﻿using VirtualPetSimulator.Models.Interfaces;
-using VirtualPetSimulator.Helpers.Enumerations;
 using VirtualPetSimulator.Models;
-using VirtualPetSimulator.Actions.SoundBehaviours;
+using VirtualPetSimulator.Actions;
 using System.ComponentModel;
+using VirtualPetSimulator.Models.Enums;
 
 namespace VirtualPetSimulator.Factories;
 
@@ -13,7 +13,7 @@ public class PetFactory
         switch (petType)
         {
             case PetType.Cat:
-                return new CatPet(name, new Meow());
+                return new CatPet(name, new MeowAction());
             default:
                 throw new InvalidEnumArgumentException($"Pet Type {petType} is not implemented yet");
         }

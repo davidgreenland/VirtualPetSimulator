@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using VirtualPetSimulator.Actions.Enums;
 using VirtualPetSimulator.Factories;
-using VirtualPetSimulator.Helpers.Enumerations;
+using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Services;
-using Validator = VirtualPetSimulator.Helpers.Validator;
+using Validator = VirtualPetSimulator.Validators.Validator;
 
 var petFactory = new PetFactory();
 var timeService = new TimeService();
@@ -14,7 +14,8 @@ var app = new VirtualPetApp(
     new Dictionary<char, PetAction> { 
         { 'S', PetAction.Sleep },
         { 'E', PetAction.Eat }, 
-        { 'P', PetAction.Play } 
+        { 'P', PetAction.Play },
+        { 'X', PetAction.Exit }
     },
     new Dictionary<char, PetType> {
         { 'C', PetType.Cat },
