@@ -1,4 +1,5 @@
 ﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Models.Interfaces;
 
 namespace VirtualPetSimulator.Services;
@@ -11,7 +12,7 @@ public class PetUpdaterService
         {
             pet.ChangeEnergy(-1);
         }
-        if (pet.Energy < 3)
+        if (pet.Energy < AttributeValue.HAPPINESS_THRESHOLD)
         {
             pet.ChangeHappiness(-1);
         }

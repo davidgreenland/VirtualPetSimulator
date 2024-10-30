@@ -25,11 +25,10 @@ public class ConsoleUserCommunicationService : IUserCommunication
     {
         ClearScreen();
         RenderAttributes(pet);
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine(DisplayMessage);
+        RenderImage(pet);
+        ShowMessage(DisplayMessage);
     }
+
     public string ReadInput(string prompt)
     {
         string? input;
@@ -51,18 +50,30 @@ public class ConsoleUserCommunicationService : IUserCommunication
 
         Console.SetCursorPosition(0, 0);
         Console.Write("Energy: ");
-        PrintColor($"{new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}");
+        PrintColor($"{new string('#', pet.Energy)}{new string(' ', HEADER_SPACER - pet.Energy)}", ConsoleColor.Red);
         Console.Write("Hunger: ");
-        PrintColor($"{new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}");
+        PrintColor($"{new string('#', pet.Hunger)}{new string(' ', HEADER_SPACER - pet.Hunger)}", ConsoleColor.Red);
         Console.Write("Happiness: ");
-        PrintColor($"{new string('#', pet.Happiness)}");
+        PrintColor($"{new string('#', pet.Happiness)}", ConsoleColor.Red);
         Console.WriteLine("\n");
         Console.SetCursorPosition(Math.Max(cursorXPosition, Console.CursorLeft), Math.Max(cursorYPosition, Console.CursorTop));
     }
 
-    private void PrintColor(string characters)
+    public void RenderImage(IPet pet)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
+        if (pet.CurrentAction == PetAction.Sit)
+        {
+            PrintColor($"{_asciiArtService.GetAsciiForMood(pet.CurrentMood)}\n", ConsoleColor.DarkGreen);
+        }
+        else
+        {
+            PrintColor($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n", ConsoleColor.DarkGreen);
+        }
+    }
+
+    private void PrintColor(string characters, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
         Console.Write(characters);
         Console.ResetColor();
     }
@@ -107,16 +118,17 @@ public class ConsoleUserCommunicationService : IUserCommunication
         string options = "";
         foreach (var action in Enum.GetNames(typeof(PetAction)))
         {
+            if (action == "Exit")
+            {
+                options += "E[x]it";
+                continue;
+            }
             if (action != "Sit")
             {
                 var actionKey = action[0];
                 options += $"[{actionKey}]{action.Substring(1)}\n";
             }
 
-            if (action == "Exit")
-            {
-                options += "E[x]it";
-            }
         }
 
         return options;

@@ -85,8 +85,15 @@ public class VirtualPetApp
 
     private void RunPetUpdate()
     {
+        var mood = Pet.CurrentMood;
+
         PetUpdaterService.UpdatePetAttributes(Pet);
         _userCommunication.RenderAttributes(Pet);
+
+        if (Pet.CurrentMood != mood)
+        {
+            _userCommunication.RenderScreen(Pet);
+        }
         //_userCommunication.DisplaySound(Pet);
     }
 

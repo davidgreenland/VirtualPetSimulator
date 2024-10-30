@@ -8,6 +8,7 @@ public interface IUserCommunication
     public void SetDisplayMessage(string message);
     void RenderScreen(IPet pet);
     void RenderAttributes(IPet pet);
+    void RenderImage(IPet pet);
     void DisplaySound(IPet pet);
     string ReadInput(string input);
     char GetUserChoice(string prompt);
