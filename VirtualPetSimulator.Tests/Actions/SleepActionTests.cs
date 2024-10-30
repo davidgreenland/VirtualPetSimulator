@@ -146,6 +146,6 @@ public class SleepActionTests
 
         await _sleepAction.Execute();
 
-        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(x => x == AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS)), Times.Exactly(expected));
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(x => x == AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS), It.IsAny<CancellationToken>()), Times.Exactly(expected));
     }
 }

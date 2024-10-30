@@ -9,7 +9,7 @@ public interface IPet
     int Energy { get; }
     int Happiness { get; }
     int Hunger { get; }
-
+    bool IsGrumpy();
     void ChangeHunger(int value);
     void ChangeEnergy(int value);
     void ChangeHappiness(int value);

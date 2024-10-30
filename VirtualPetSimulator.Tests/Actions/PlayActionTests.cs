@@ -50,7 +50,7 @@ public class PlayActionTests
 
         await _playAction.Execute();
 
-        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == expected)), Times.Once);
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == expected), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestCase(4)]
@@ -68,7 +68,7 @@ public class PlayActionTests
     [Test]
     public async Task Execute_WhenHappinessAtOrBelowThreshold_PetDoesNotPlay()
     {
-        _testPet.Setup(x => x.Happiness).Returns(AttributeValue.HAPPINESS_PLAY_THRESHOLD - 1);
+        _testPet.Setup(x => x.Happiness).Returns(AttributeValue.HAPPINESS_THRESHOLD - 1);
         _playAction = new PlayAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object);
         var expected = 0;
 

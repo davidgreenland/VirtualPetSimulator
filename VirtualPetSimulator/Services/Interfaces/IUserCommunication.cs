@@ -16,4 +16,5 @@ public interface IUserCommunication
     void ClearScreen();
     void WaitForUser();
     void ShowMessage(string message);
+    void ListenForKeyStroke(CancellationTokenSource tokenSource, Task operation);
 }

@@ -34,17 +34,20 @@ public class PlayAction : IPetAction
             return playAmount;
         }
 
-        if (_pet.Happiness <= AttributeValue.HAPPINESS_PLAY_THRESHOLD)
+        if (_pet.Happiness <= AttributeValue.HAPPINESS_THRESHOLD)
         {
-            await DisplayTooGrumpyToPlay();
+            var token = new CancellationTokenSource().Token;
+            await DisplayTooGrumpyToPlay(token);
             return playAmount;
         }
 
         _pet.CurrentAction = playAction;
         _userCommunication.SetDisplayMessage($"{_pet.Name} is having a good play");
         playAmount = PlayAmountRequest;
+
+        var tokenSource = new CancellationTokenSource();
         var playDuration = PlayAmountRequest * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
-        var playingOperation = _timeService.WaitForOperation(playDuration);
+        var playingOperation = _timeService.WaitForOperation(playDuration, tokenSource.Token);
 
         _userCommunication.RenderScreen(_pet);
         var progress = _userCommunication.ShowProgress(playingOperation);
@@ -57,11 +60,11 @@ public class PlayAction : IPetAction
         return playAmount;
     }
 
-    private async Task DisplayTooGrumpyToPlay()
+    private async Task DisplayTooGrumpyToPlay(CancellationToken token)
     {
         _userCommunication.SetDisplayMessage($"{_pet.Name} is too grumpy to play");
         _userCommunication.RenderScreen(_pet);
-        await _timeService.WaitForOperation(2000);
+        await _timeService.WaitForOperation(2000, token);
         _userCommunication.SetDisplayMessageToOptions();
         _userCommunication.RenderScreen(_pet);
     }

@@ -6,5 +6,6 @@ public enum PetAction
     Eat,
     Play,
     Sit,
+    Grumpy,
     Exit
 }

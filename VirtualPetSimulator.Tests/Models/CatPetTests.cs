@@ -205,4 +205,31 @@ public class CatPetTests
 
         Assert.That(pet.Happiness, Is.EqualTo(AttributeValue.MAX));
     }
+
+    [Test]
+    public void IsGrumpy_When_HappinessIsBelowThreshold_ReturnsTrue()
+    {
+        var unhappy = AttributeValue.HAPPINESS_THRESHOLD - 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, unhappy);
+
+        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+    }
+
+    [Test]
+    public void IsGrumpy_When_EnergyIsBelowThreshold_ReturnsTrue()
+    {
+        var lowEnergy = AttributeValue.HAPPINESS_THRESHOLD - 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, lowEnergy, AttributeValue.DEFAULT, AttributeValue.DEFAULT);
+
+        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+    }
+
+    [Test]
+    public void IsGrumpy_When_HungerAboveThreshold_ReturnsTrue()
+    {
+        var hungry = AttributeValue.HUNGRY + 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, hungry, AttributeValue.DEFAULT);
+
+        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+    }
 }

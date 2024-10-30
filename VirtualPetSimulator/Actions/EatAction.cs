@@ -38,8 +38,9 @@ public class EatAction : IPetAction
         portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
         _userCommunication.SetDisplayMessage($"{_pet.Name} enjoying his food");
 
+        var tokenSource = new CancellationTokenSource();
         var eatingDuration = portionsEaten * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
-        var eatingOperation = _timeService.WaitForOperation(eatingDuration);
+        var eatingOperation = _timeService.WaitForOperation(eatingDuration, tokenSource.Token);
         var progress = _userCommunication.ShowProgress(eatingOperation);
 
         _userCommunication.RenderScreen(_pet);

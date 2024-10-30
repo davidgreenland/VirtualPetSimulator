@@ -11,5 +11,9 @@ public class PetUpdaterService
         {
             pet.ChangeEnergy(-1);
         }
+        if (pet.Energy < 3)
+        {
+            pet.ChangeHappiness(-1);
+        }
     }
 }

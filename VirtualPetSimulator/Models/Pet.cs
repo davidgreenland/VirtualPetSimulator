@@ -41,6 +41,8 @@ public abstract class Pet : IPet
         Happiness = happiness;
     }
 
+    public bool IsGrumpy() => _energy < AttributeValue.HAPPINESS_THRESHOLD || _happiness < AttributeValue.HAPPINESS_THRESHOLD || _hunger > AttributeValue.HUNGRY;
+
     public void ChangeEnergy(int value)
     {
         Energy += value;

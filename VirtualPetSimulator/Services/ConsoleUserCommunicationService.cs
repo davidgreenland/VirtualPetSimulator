@@ -81,7 +81,7 @@ public class ConsoleUserCommunicationService : IUserCommunication
             Console.SetCursorPosition(cursorXPosition, cursorYPosition);
         }
 
-        await _timeService.WaitForOperation(3000);
+        await _timeService.WaitForOperation(3000, new CancellationTokenSource().Token);
 
         if (pet.CurrentAction == PetAction.Sit)
         {
@@ -151,12 +151,13 @@ public class ConsoleUserCommunicationService : IUserCommunication
         {
             await _timeService.WaitForOperation(interval);
 
-            Console.Write(".");
+            if (!task.IsCompleted)
+            {
+                Console.Write(".");
+            }
         }
-
-        Console.WriteLine();
     }
-
+ 
     public void ClearScreen() 
     {
         // tests were failing without this conditional
@@ -169,4 +170,18 @@ public class ConsoleUserCommunicationService : IUserCommunication
     public void WaitForUser() => Console.ReadKey();
 
     public void ShowMessage(string message) => Console.WriteLine(message);
+
+    public void ListenForKeyStroke(CancellationTokenSource tokenSource, Task operation)
+    {
+        Console.WriteLine("Press spacebar to wake them");
+        ConsoleKeyInfo consoleKey;
+        do
+        {
+            consoleKey = Console.ReadKey();
+            if (consoleKey.Key == ConsoleKey.Spacebar)
+            {
+                tokenSource.Cancel();
+            }
+        } while ((consoleKey.Key != ConsoleKey.Spacebar && !operation.IsCompleted));
+    }
 }

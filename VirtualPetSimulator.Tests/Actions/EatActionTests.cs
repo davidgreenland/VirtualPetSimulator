@@ -113,7 +113,7 @@ public class EatActionTests
 
         await _eatAction.Execute();
 
-        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == expected)), Times.Once());
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == expected), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [TestCase(3)]

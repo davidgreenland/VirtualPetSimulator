@@ -10,6 +10,12 @@ public class TimeService : ITimeService
         return operation;
     }
 
+    public Task WaitForOperation(int milliseconds, CancellationToken token)
+    {
+        var operation = Task.Delay(milliseconds, token);
+        return operation;
+    }
+
     public Timer StartTimer(TimerCallback timerCallback)
     {
         var startDelay = 4000;

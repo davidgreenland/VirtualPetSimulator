@@ -41,22 +41,43 @@ public class SleepAction : IPetAction
             return amountSlept;
         }
 
-        while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
+        var tokenSource = new CancellationTokenSource();
+        var cancellationToken = tokenSource.Token;
+
+        try
         {
-            var sleepDuration = oneSleep * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
-            var operation = _timeService.WaitForOperation(sleepDuration);
+            while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0 && !cancellationToken.IsCancellationRequested)
+            {
+                var sleepDuration = oneSleep * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
+                var operation = _timeService.WaitForOperation(sleepDuration, cancellationToken);
 
+                _userCommunication.RenderScreen(_pet);
+                var progress = _userCommunication.ShowProgress(operation);
+
+                var listenForKey = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
+                listenForKey.Start();
+
+                amountSlept += oneSleep;
+                _sleepSpecified--;
+
+                await operation;
+                await progress;
+
+                _pet.ChangeEnergy(oneSleep);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _userCommunication.SetDisplayMessage($"{_pet.Name}'s nap has been rudely interupted... good luck.");
             _userCommunication.RenderScreen(_pet);
-            var progress = _userCommunication.ShowProgress(operation);
-            amountSlept += oneSleep;
-            _sleepSpecified--;
-
-            await operation;
-            await progress;
-            _pet.ChangeEnergy(oneSleep);
+            await _timeService.WaitForOperation(2000);
+        }
+        finally
+        {
+            _userCommunication.SetDisplayMessageToOptions();
         }
 
-        _userCommunication.SetDisplayMessageToOptions();
         return amountSlept;
     }
+
 }
