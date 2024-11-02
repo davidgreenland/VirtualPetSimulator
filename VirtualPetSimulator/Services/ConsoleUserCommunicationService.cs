@@ -29,20 +29,6 @@ public class ConsoleUserCommunicationService : IUserCommunication
         ShowMessage(DisplayMessage);
     }
 
-    public string ReadInput(string prompt)
-    {
-        string? input;
-
-        do
-        {
-            Console.Write(prompt);
-            input = Console.ReadLine();
-        }
-        while (string.IsNullOrEmpty(input));
-
-        return input;
-    }
-
     public void RenderAttributes(IPet pet)
     {
         int cursorXPosition = Console.CursorLeft;
@@ -78,7 +64,7 @@ public class ConsoleUserCommunicationService : IUserCommunication
         Console.ResetColor();
     }
 
-    public async void DisplaySound(IPet pet)
+    public async void DisplaySoundAsync(IPet pet)
     {
         int cursorXPosition = Console.CursorLeft;
         int cursorYPosition = Console.CursorTop;
@@ -100,6 +86,20 @@ public class ConsoleUserCommunicationService : IUserCommunication
             Console.Write(new string(' ', pet.PerformSound().Length));
             Console.SetCursorPosition(cursorXPosition, cursorYPosition);
         }
+    }
+
+    public string ReadInput(string prompt)
+    {
+        string? input;
+
+        do
+        {
+            Console.Write(prompt);
+            input = Console.ReadLine();
+        }
+        while (string.IsNullOrEmpty(input));
+
+        return input;
     }
 
     public void SetDisplayMessageToOptions()
@@ -134,28 +134,29 @@ public class ConsoleUserCommunicationService : IUserCommunication
         return options;
     }
 
-    public string GetPetChoices()
+    public string GetOptions(Type optionSet)
     {
         string petChoices = "";
-        foreach (var pet in Enum.GetNames(typeof(PetType)))
+        foreach (var choice in Enum.GetNames(optionSet))
         {
-            var actionKey = pet[0];
-            petChoices += $"[{actionKey}]{pet.Substring(1)}\n";
-
+            var actionKey = choice[0];
+            petChoices += $"[{actionKey}]{choice.Substring(1)}\n";
         }
 
         return petChoices;
     }
 
+
+
     public char GetUserChoice(string prompt)
     {
         Console.Write(prompt);
-        var input = char.ToUpper(Console.ReadKey().KeyChar);
+        var key = (char)Console.ReadKey(true).Key;
         Console.WriteLine(Environment.NewLine);
-        return input;
+        return key;
     }
 
-    public async Task ShowProgress(Task task)
+    public async Task ShowProgressAsync(Task task)
     {
         int interval = 100;
 
@@ -194,6 +195,7 @@ public class ConsoleUserCommunicationService : IUserCommunication
             {
                 tokenSource.Cancel();
             }
-        } while ((consoleKey.Key != ConsoleKey.Spacebar && !operation.IsCompleted));
+        } 
+        while ((consoleKey.Key != ConsoleKey.Spacebar && !operation.IsCompleted));
     }
 }

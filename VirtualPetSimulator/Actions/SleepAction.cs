@@ -14,19 +14,15 @@ public class SleepAction : IPetAction
     private readonly IUserCommunication _userCommunication;
     private readonly ITimeService _timeService;
     private readonly PetAction sleepAction = PetAction.Sleep;
-    private int _sleepSpecified = AttributeValue.MAX;
+    private int _sleepValue;
 
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int sleepSpecified) : this(pet, validator, userCommunication, timeService)
-    {
-        _sleepSpecified = sleepSpecified;
-    }
-
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService)
+    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int sleepValue)
     {
         _pet = pet;
         _validator = validator;
         _userCommunication = userCommunication;
         _timeService = timeService;
+        _sleepValue = sleepValue;
     }
 
     public async Task<int> Execute()
@@ -36,7 +32,7 @@ public class SleepAction : IPetAction
         var oneSleep = 1;
         int amountSlept = 0;
 
-        if (!_validator.Validate(_sleepSpecified, nameof(_sleepSpecified)))
+        if (!_validator.Validate(_sleepValue, nameof(_sleepValue)))
         {
             return amountSlept;
         }
@@ -46,19 +42,19 @@ public class SleepAction : IPetAction
 
         try
         {
-            while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0 && !cancellationToken.IsCancellationRequested)
+            while (_pet.Energy < AttributeValue.MAX && _sleepValue > 0 && !cancellationToken.IsCancellationRequested)
             {
                 var sleepDuration = oneSleep * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
                 var operation = _timeService.WaitForOperation(sleepDuration, cancellationToken);
 
                 _userCommunication.RenderScreen(_pet);
-                var progress = _userCommunication.ShowProgress(operation);
+                var progress = _userCommunication.ShowProgressAsync(operation);
 
                 var listenForKey = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
                 listenForKey.Start();
 
                 amountSlept += oneSleep;
-                _sleepSpecified--;
+                _sleepValue--;
 
                 await operation;
                 await progress;
@@ -68,6 +64,7 @@ public class SleepAction : IPetAction
         }
         catch (TaskCanceledException)
         {
+            _pet.ChangeHappiness(-4);
             _userCommunication.SetDisplayMessage($"{_pet.Name}'s nap has been rudely interupted... good luck.");
             _userCommunication.RenderScreen(_pet);
             await _timeService.WaitForOperation(2000);
@@ -79,5 +76,4 @@ public class SleepAction : IPetAction
 
         return amountSlept;
     }
-
 }

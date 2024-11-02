@@ -77,8 +77,8 @@ class VirtualPetAppTests
 
         _app.SetPet(new CatPet(petName, _soundBehaviourMock.Object));
 
-        Assert.That(_app.Pet, Is.Not.Null);
-        Assert.That(_app.Pet.Name, Is.EqualTo(petName));
+        Assert.That(_app.pet, Is.Not.Null);
+        Assert.That(_app.pet.Name, Is.EqualTo(petName));
     }
 
     //[Test]

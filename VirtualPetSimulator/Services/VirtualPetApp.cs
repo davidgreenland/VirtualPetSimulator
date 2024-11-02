@@ -3,22 +3,21 @@ using VirtualPetSimulator.Factories.Interfaces;
 using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
+using VirtualPetSimulator.Configuration;
+using VirtualPetSimulator.Helpers;
 
 namespace VirtualPetSimulator.Services;
 
 public class VirtualPetApp
 {
-    public IPet? Pet { get; private set; }
-    private readonly Dictionary<char, PetAction> _petActions;
-    private readonly Dictionary<char, PetType> _petTypes;
+    private readonly KeyStrokeMappings _keyStrokeMappings;
     private readonly IUserCommunication _userCommunication;
     private readonly ITimeService _timeService;
     private readonly IPetActionFactory _petActionFactory;
 
-    public VirtualPetApp(Dictionary<char, PetAction> petActions, Dictionary<char, PetType> petTypes, IUserCommunication userCommunication, ITimeService timeService, IPetActionFactory petActionFactory)
+    public VirtualPetApp(KeyStrokeMappings keyStrokeMappings, IUserCommunication userCommunication, ITimeService timeService, IPetActionFactory petActionFactory)
     {
-        _petActions = petActions;
-        _petTypes = petTypes;
+        _keyStrokeMappings = keyStrokeMappings;
         _userCommunication = userCommunication;
         _timeService = timeService;
         _petActionFactory = petActionFactory;
@@ -27,22 +26,10 @@ public class VirtualPetApp
     public PetType ChoosePetType()
     {
         _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator\n");
-        _userCommunication.ShowMessage(_userCommunication.GetPetChoices());
-        var petChoice = GetPetType();
+        _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(PetType)));
+        var petChoice = SelectOptionByKey(_keyStrokeMappings.PetTypes, "Choose your pet: ");
 
         return petChoice;
-    }
-
-    private PetType GetPetType()
-    {
-        char userChoice;
-        do
-        {
-            userChoice = _userCommunication.GetUserChoice("Choose your pet: ");
-        }
-        while (!_petTypes.ContainsKey(userChoice));
-
-        return _petTypes[userChoice];
     }
 
     public string ChooseName()
@@ -50,29 +37,27 @@ public class VirtualPetApp
         return _userCommunication.ReadInput("What is the name of your pet? ");
     }
 
-    public void SetPet(IPet pet)
-    {
-        Pet = pet;
-    }
-
-    public async Task Run()
+    public async Task Run(IPet pet)
     {
         bool running = true;
         PetAction userChoice;
 
-        var timer = _timeService.StartTimer(x => RunPetUpdate());
+        var timer = new Task(() => _timeService.StartTimer(x => RunPetUpdate(pet)));
+        //var timer = _timeService.StartTimer(x => RunPetUpdate(pet));
+        timer.Start();
 
         while (running)
         {
-            _userCommunication.RenderScreen(Pet);
+            _userCommunication.RenderScreen(pet);
 
-            userChoice = GetPetActionChoice();
+            userChoice = SelectOptionByKey(_keyStrokeMappings.PetActions, "Choose an option: ");
+            var actionValue = GetAmount(pet, userChoice);
 
-            var petAction = _petActionFactory.CreatePetAction(Pet, userChoice, timer);
+            var petAction = _petActionFactory.CreatePetAction(pet, userChoice, actionValue);
             if (petAction != null)
             {
                 await petAction.Execute();
-                Pet.CurrentAction = PetAction.Sit;
+                pet.CurrentAction = PetAction.Sit;
             }
 
             if (userChoice == PetAction.Exit)
@@ -80,33 +65,60 @@ public class VirtualPetApp
                 running = false;
             }
         }
-
     }
 
-    private void RunPetUpdate()
+    private int GetAmount(IPet pet, PetAction userChoice)
     {
-        var mood = Pet.CurrentMood;
-
-        PetUpdaterService.UpdatePetAttributes(Pet);
-        _userCommunication.RenderAttributes(Pet);
-
-        if (Pet.CurrentMood != mood)
+        switch (userChoice)
         {
-            _userCommunication.RenderScreen(Pet);
+            case PetAction.Sleep:
+                return AttributeValue.MAX;
+            case PetAction.Eat:
+                _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(EatOption)));
+                var mealChoice = SelectOptionByKey(_keyStrokeMappings.EatOptions, $"What are you going to give {pet.Name}: ");
+                if (mealChoice == EatOption.Meal)
+                {
+                    return 5;
+                }
+                else if (mealChoice == EatOption.Snack)
+                {
+                    return 1;
+                }
+                return 0;
+            case PetAction.Play:
+                return 1;
+            default:
+                return 0;
         }
-        //_userCommunication.DisplaySound(Pet);
     }
 
-    private PetAction GetPetActionChoice()
+    private void RunPetUpdate(IPet pet)
+    {
+        if (pet.CurrentAction == PetAction.Sit)
+        {
+            var mood = pet.CurrentMood;
+
+            PetUpdaterService.UpdatePetAttributes(pet);
+            _userCommunication.RenderScreen(pet);
+
+            if (pet.CurrentMood != mood)
+            {
+                _userCommunication.RenderScreen(pet);
+            }
+
+            //_userCommunication.DisplaySoundAsync(pet);
+        }
+    }
+
+    private T SelectOptionByKey<T>(Dictionary<char, T> options, string prompt) where T : Enum
     {
         char userChoice;
         do
         {
-            _userCommunication.RenderScreen(Pet);
-            userChoice = _userCommunication.GetUserChoice("Choose an option: ");
+            userChoice = _userCommunication.GetUserChoice(prompt);
         }
-        while (!_petActions.ContainsKey(userChoice));
+        while (!options.ContainsKey(userChoice));
 
-        return _petActions[userChoice];
+        return options[userChoice];
     }
 }

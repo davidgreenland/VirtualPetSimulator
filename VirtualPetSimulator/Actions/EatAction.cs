@@ -14,7 +14,7 @@ public class EatAction : IPetAction
     private readonly IUserCommunication _userCommunication;
     private readonly ITimeService _timeService;
     private readonly PetAction eatAction = PetAction.Eat;
-    public int FoodAmount { get; }
+    private int _foodAmount;
 
     public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int foodAmount = 1)
     {
@@ -22,34 +22,58 @@ public class EatAction : IPetAction
         _validator = validator;
         _timeService = timeService;
         _userCommunication = userCommunication;
-        FoodAmount = foodAmount;
+        _foodAmount = foodAmount;
     }
 
     public async Task<int> Execute()
     {
         _pet.CurrentAction = eatAction;
-        int portionsEaten;
-        if (!_validator.Validate(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
+        var onePortion = 1;
+        int portionsEaten = 0;
+        if (!_validator.Validate(_foodAmount, nameof(_foodAmount)) || _pet.Hunger == AttributeValue.MIN)
         {
-            portionsEaten = 0;
             return portionsEaten;
         }
 
-        portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
         _userCommunication.SetDisplayMessage($"{_pet.Name} enjoying his food");
-
         var tokenSource = new CancellationTokenSource();
-        var eatingDuration = portionsEaten * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
-        var eatingOperation = _timeService.WaitForOperation(eatingDuration, tokenSource.Token);
-        var progress = _userCommunication.ShowProgress(eatingOperation);
+        var cancellationToken = tokenSource.Token;
 
-        _userCommunication.RenderScreen(_pet);
+        try
+        {
+            while (_pet.Hunger > AttributeValue.MIN && _foodAmount > 0 && !cancellationToken.IsCancellationRequested)
+            {
+                var eatDuration = onePortion * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
+                var operation = _timeService.WaitForOperation(eatDuration, cancellationToken);
 
-        await eatingOperation;
-        await progress;
+                _userCommunication.RenderScreen(_pet);
+                var progress = _userCommunication.ShowProgressAsync(operation);
 
-        _pet.ChangeHunger(-portionsEaten);
-        _userCommunication.SetDisplayMessageToOptions();
+                var listenForKey = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
+                listenForKey.Start();
+
+                portionsEaten++;
+                _foodAmount--;
+
+                await operation;
+                await progress;
+
+                _pet.ChangeHunger(-onePortion);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _pet.ChangeHappiness(-3);
+            _userCommunication.SetDisplayMessage($"{_pet.Name}'s meal has been cruelly snatched away - Shame on you.");
+            _userCommunication.RenderScreen(_pet);
+            await _timeService.WaitForOperation(2000);
+        }
+        finally
+        {
+            _userCommunication.SetDisplayMessageToOptions();
+            Console.WriteLine("Hello");
+        }
+
         return portionsEaten;
     }
 }

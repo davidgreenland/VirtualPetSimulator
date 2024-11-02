@@ -6,6 +6,6 @@ namespace VirtualPetSimulator.Factories.Interfaces
 {
     public interface IPetActionFactory
     {
-        IPetAction CreatePetAction(IPet pet, PetAction selectedAction, ITimer timer);
+        IPetAction CreatePetAction(IPet pet, PetAction selectedAction, int actionValue);
     }
 }

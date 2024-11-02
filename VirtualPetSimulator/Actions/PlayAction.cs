@@ -50,7 +50,7 @@ public class PlayAction : IPetAction
         var playingOperation = _timeService.WaitForOperation(playDuration, tokenSource.Token);
 
         _userCommunication.RenderScreen(_pet);
-        var progress = _userCommunication.ShowProgress(playingOperation);
+        var progress = _userCommunication.ShowProgressAsync(playingOperation);
 
         await Task.WhenAll(playingOperation, progress);
 

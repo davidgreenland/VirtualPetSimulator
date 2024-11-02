@@ -3,6 +3,7 @@ using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Helpers;
 using Moq;
 using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Models.Enums;
 
 namespace VirtualPetSimulator.Tests.Models;
 
@@ -207,21 +208,21 @@ public class CatPetTests
     }
 
     [Test]
-    public void IsGrumpy_When_HappinessIsBelowThreshold_ReturnsTrue()
+    public void CheckMood_When_HappinessIsBelowThreshold_ReturnsCorrectMood()
     {
         var unhappy = AttributeValue.HAPPINESS_THRESHOLD - 1;
         var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, unhappy);
 
-        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
     }
 
     [Test]
-    public void IsGrumpy_When_EnergyIsBelowThreshold_ReturnsTrue()
+    public void CheckMood_When_EnergyIsBelowThreshold_Returns()
     {
         var lowEnergy = AttributeValue.HAPPINESS_THRESHOLD - 1;
         var pet = new CatPet("CatFish", _soundBehaviour.Object, lowEnergy, AttributeValue.DEFAULT, AttributeValue.DEFAULT);
 
-        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
     }
 
     [Test]
@@ -230,6 +231,6 @@ public class CatPetTests
         var hungry = AttributeValue.HUNGRY + 1;
         var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, hungry, AttributeValue.DEFAULT);
 
-        Assert.That(pet.IsGrumpy(), Is.EqualTo(true));
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
     }
 }

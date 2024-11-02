@@ -9,11 +9,11 @@ public interface IUserCommunication
     void RenderScreen(IPet pet);
     void RenderAttributes(IPet pet);
     void RenderImage(IPet pet);
-    void DisplaySound(IPet pet);
+    void DisplaySoundAsync(IPet pet);
     string ReadInput(string input);
     char GetUserChoice(string prompt);
-    string GetPetChoices();
-    Task ShowProgress(Task task);
+    string GetOptions(Type options);
+    Task ShowProgressAsync(Task task);
     void ClearScreen();
     void WaitForUser();
     void ShowMessage(string message);
