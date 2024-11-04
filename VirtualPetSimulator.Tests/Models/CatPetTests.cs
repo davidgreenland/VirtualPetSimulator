@@ -1,25 +1,31 @@
 ﻿using NUnit.Framework;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Helpers;
+using Moq;
+using VirtualPetSimulator.Actions.Interfaces;
+using VirtualPetSimulator.Models.Enums;
 
 namespace VirtualPetSimulator.Tests.Models;
 
 public class CatPetTests
 {
     private CatPet _defaultCatPet;
+    private Mock<ISoundAction> _soundBehaviour;
     private const int SINGLE_INCREMENT = 1;
 
     [SetUp]
     public void SetUp()
     {
-        _defaultCatPet = new CatPet("Simon");
+        _soundBehaviour = new Mock<ISoundAction>();
+        _soundBehaviour.Setup(x => x.MakeSound()).Returns("Meow");
+        _defaultCatPet = new CatPet("Simon", _soundBehaviour.Object);
     }
 
     [Test]
     public void ChangeEnergy_WhenEnergyMAX_DoesNotChange()
     {
         var startingEnergy = AttributeValue.MAX;
-        var pet = new CatPet("Joseph", startingEnergy);
+        var pet = new CatPet("Joseph", _soundBehaviour.Object, startingEnergy);
 
         pet.ChangeEnergy(SINGLE_INCREMENT);
 
@@ -44,7 +50,7 @@ public class CatPetTests
     [TestCase(9, -9, 0)]
     public void ChangeEnergy_WhenCalledWithValue_CanChangeByValue(int startingEnergy, int change, int expected)
     {
-        var pet = new CatPet("Kitty", startingEnergy);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, startingEnergy);
 
         pet.ChangeEnergy(change);
 
@@ -57,7 +63,7 @@ public class CatPetTests
     [TestCase(3, -5)]
     public void ChangeEnergy_WhenNegativeChangeAmountMoreThanEnergy_EnergyDoesNotBecomeNegative(int startingEnergy, int change)
     {
-        var pet = new CatPet("Kitty", startingEnergy);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, startingEnergy);
 
         pet.ChangeEnergy(change);
 
@@ -70,7 +76,7 @@ public class CatPetTests
     [TestCase(3, 8)]
     public void ChangeEnergy_WhenPositveChangeAmountMoreThanDeficit_EnergyDoesNotExceedMax(int startingEnergy, int change)
     {
-        var pet = new CatPet("Kitty", startingEnergy);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, startingEnergy);
 
         pet.ChangeEnergy(change);
 
@@ -81,7 +87,7 @@ public class CatPetTests
     public void ChangeHunger_WhenHungerMax_DoesNotChange()
     {
         var startingHunger = AttributeValue.MAX;
-        var pet = new CatPet("Joseph", AttributeValue.MEDIUM, startingHunger);
+        var pet = new CatPet("Joseph", _soundBehaviour.Object, AttributeValue.MEDIUM, startingHunger);
 
         pet.ChangeHunger(SINGLE_INCREMENT);
 
@@ -106,7 +112,7 @@ public class CatPetTests
     [TestCase(9, -9, 0)]
     public void ChangeHunger_WhenCalledWithValue_CanChangeByValue(int startingHunger, int change, int expected)
     {
-        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, AttributeValue.MEDIUM, startingHunger);
 
         pet.ChangeHunger(change);
 
@@ -119,7 +125,7 @@ public class CatPetTests
     [TestCase(3, -5)]
     public void ChangeHunger_WhenNegativeChangeAmountMoreThanHunger_HungerDoesNotBecomeNegative(int startingHunger, int change)
     {
-        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, AttributeValue.MEDIUM, startingHunger);
 
         pet.ChangeHunger(change);
 
@@ -132,7 +138,7 @@ public class CatPetTests
     [TestCase(3, 8)]
     public void ChangeHunger_WhenPositveChangeAmountMoreThanDeficit_HungerDoesNotExceedMax(int startingHunger, int change)
     {
-        var pet = new CatPet("Kitty", AttributeValue.MEDIUM, startingHunger);
+        var pet = new CatPet("Kitty", _soundBehaviour.Object, AttributeValue.MEDIUM, startingHunger);
 
         pet.ChangeHunger(change);
 
@@ -143,7 +149,7 @@ public class CatPetTests
     public void ChangeHappiness_WhenHappinessMAX_DoesNotChange()
     {
         var startingHappiness = AttributeValue.MAX;
-        var pet = new CatPet("Joseph", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
+        var pet = new CatPet("Joseph", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
         pet.ChangeHappiness(SINGLE_INCREMENT);
 
@@ -168,7 +174,7 @@ public class CatPetTests
     [TestCase(9, -9, 0)]
     public void ChangeHappiness_WhenCalledWithValue_CanChangeByValue(int startingHappiness, int change, int expected)
     {
-        var pet = new CatPet("Kits", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
+        var pet = new CatPet("Kits", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
         pet.ChangeHappiness(change);
 
@@ -181,7 +187,7 @@ public class CatPetTests
     [TestCase(3, -5)]
     public void ChangeHappiness_WhenNegativeChangeAmountMoreThanHappiness_HappinessDoesNotBecomeNegative(int startingHappiness, int change)
     {
-        var pet = new CatPet("Kits", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
+        var pet = new CatPet("Kits", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
         pet.ChangeHappiness(change);
 
@@ -194,10 +200,37 @@ public class CatPetTests
     [TestCase(3, 8)]
     public void ChangeHappiness_WhenPositveChangeAmountMoreThanDeficit_HappinessDoesNotExceedMax(int startingHappiness, int change)
     {
-        var pet = new CatPet("CatFish", AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, startingHappiness);
 
         pet.ChangeHappiness(change);
 
         Assert.That(pet.Happiness, Is.EqualTo(AttributeValue.MAX));
+    }
+
+    [Test]
+    public void CheckMood_When_HappinessIsBelowThreshold_ReturnsCorrectMood()
+    {
+        var unhappy = AttributeValue.HAPPINESS_THRESHOLD - 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, AttributeValue.DEFAULT, unhappy);
+
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
+    }
+
+    [Test]
+    public void CheckMood_When_EnergyIsBelowThreshold_Returns()
+    {
+        var lowEnergy = AttributeValue.HAPPINESS_THRESHOLD - 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, lowEnergy, AttributeValue.DEFAULT, AttributeValue.DEFAULT);
+
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
+    }
+
+    [Test]
+    public void IsGrumpy_When_HungerAboveThreshold_ReturnsTrue()
+    {
+        var hungry = AttributeValue.HUNGRY + 1;
+        var pet = new CatPet("CatFish", _soundBehaviour.Object, AttributeValue.DEFAULT, hungry, AttributeValue.DEFAULT);
+
+        Assert.That(pet.CheckMood(), Is.EqualTo(PetMood.Grumpy));
     }
 }

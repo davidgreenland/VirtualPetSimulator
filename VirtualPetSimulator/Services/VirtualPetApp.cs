@@ -1,91 +1,124 @@
-using VirtualPetSimulator.Actions;
-using VirtualPetSimulator.Actions.Interfaces;
-using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Helpers.Interfaces;
+using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Factories.Interfaces;
+using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
+using VirtualPetSimulator.Configuration;
+using VirtualPetSimulator.Helpers;
 
 namespace VirtualPetSimulator.Services;
 
 public class VirtualPetApp
 {
-    private readonly IPet _pet;
-    private readonly Dictionary<char, PetActions> _petActions;
-    private readonly IValidator _validator;
+    private readonly KeyStrokeMappings _keyStrokeMappings;
     private readonly IUserCommunication _userCommunication;
+    private readonly ITimeService _timeService;
+    private readonly IPetActionFactory _petActionFactory;
 
-    public VirtualPetApp(IPet pet, Dictionary<char, PetActions> petActions, IValidator validator, IUserCommunication userCommunication)
+    public VirtualPetApp(KeyStrokeMappings keyStrokeMappings, IUserCommunication userCommunication, ITimeService timeService, IPetActionFactory petActionFactory)
     {
-        _pet = pet;
-        _petActions = petActions;
-        _validator = validator;
+        _keyStrokeMappings = keyStrokeMappings;
         _userCommunication = userCommunication;
+        _timeService = timeService;
+        _petActionFactory = petActionFactory;
     }
 
-    public async Task StartApp()
+    public PetType ChoosePetType()
+    {
+        var petOptions = _userCommunication.GetOptions(typeof(PetType));
+        _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator\n\nThese wonderful animals are available\n\n");
+        _userCommunication.ShowMessage(petOptions +"\nChoose your pet : ");
+        var petChoice = SelectOptionByKey(_keyStrokeMappings.PetTypes);
+        return petChoice;
+    }
+
+    public string ChooseName()
+    {
+        return _userCommunication.ReadInput("What is the name of your pet? ");
+    }
+
+    public async Task Run(IPet pet)
     {
         bool running = true;
-        PetActions userChoice;
-        _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator");
-        _userCommunication.ShowMessage("Press any key to begin");
-        _userCommunication.WaitForUser();
+        PetAction userChoice;
+
+        var timer = _timeService.StartTimer(x => RunPetUpdate(pet));
 
         while (running)
         {
-            _userCommunication.RenderScreen();
-            userChoice = GetUserChoice();
+            _userCommunication.SetDisplayMessageToOptions();
+            _userCommunication.RenderScreen(pet);
 
-            IPetAction? petAction = null;
+            userChoice = SelectOptionByKey(_keyStrokeMappings.PetActions);
+            var actionValue = await GetAmountAsync(pet, userChoice);
 
-            switch (userChoice)
-            {
-                case PetActions.Sleep:
-                    petAction = new SleepAction(_pet, _validator, _userCommunication);
-                    break;
-                case PetActions.Eat:
-                    petAction = new EatAction(_pet, _validator, _userCommunication);
-                    break;
-                case PetActions.Play:
-                    petAction = new PlayAction(_pet, _validator, _userCommunication);
-                    break;
-                default:
-                    _pet.CurrentAction = PetActions.Sit;
-                    break;
-            }
-
+            var petAction = _petActionFactory.CreatePetAction(pet, userChoice, actionValue);
             if (petAction != null)
             {
                 await petAction.Execute();
-                _pet.CurrentAction = PetActions.Sit;
+                pet.CurrentAction = PetAction.Sit;
+            }
+
+            if (userChoice == PetAction.Exit)
+            {
+                running = false;
             }
         }
     }
 
-    private PetActions GetUserChoice()
+    private async Task<int> GetAmountAsync(IPet pet, PetAction userChoice)
+    {
+        switch (userChoice)
+        {
+            case PetAction.Sleep:
+                return AttributeValue.MAX;
+            case PetAction.Eat:
+                _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(EatOption)) + $"What are you going to give {pet.Name}: ");
+                var mealChoice = await Task.Run(() => SelectOptionByKey(_keyStrokeMappings.EatOptions));
+
+                if (mealChoice == EatOption.Meal)
+                {
+                    return 5;
+                }
+                else if (mealChoice == EatOption.Snack)
+                {
+                    return 1;
+                }
+                return 0;
+            case PetAction.Play:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    private void RunPetUpdate(IPet pet)
+    {
+        if (pet.CurrentAction == PetAction.Sit)
+        {
+            var mood = pet.CurrentMood;
+
+            PetUpdaterService.UpdatePetAttributes(pet);
+            _userCommunication.RenderAttributes(pet);
+
+            if (pet.CurrentMood != mood)
+            {
+                _userCommunication.RenderScreen(pet);
+            }
+
+            //_userCommunication.DisplaySoundAsync(pet);
+        }
+    }
+
+    private T SelectOptionByKey<T>(Dictionary<char, T> options) where T : Enum
     {
         char userChoice;
         do
         {
-            _userCommunication.RenderScreen();
-            ShowOptions();
-            userChoice = _userCommunication.GetUserChoice("Choose an option: ");
+            userChoice = _userCommunication.GetUserChoice();
         }
-        while (!_petActions.ContainsKey(userChoice));
-
-        return _petActions[userChoice];
-    }
-
-    private void ShowOptions()
-    {
-        // todo: deal with null in pet actions dictionary
-        var count = 0;
-        foreach (var item in _petActions)
-        {
-            var optionName = Enum.GetNames(typeof(PetActions));
-            var actionKey = optionName[count][0];
-
-            _userCommunication.ShowMessage($"[{actionKey}]{optionName[count].Substring(1)}");
-            count++;
-        }
+        while (!options.ContainsKey(userChoice));
+        Console.Write(options[userChoice] + "\n");
+        return options[userChoice];
     }
 }

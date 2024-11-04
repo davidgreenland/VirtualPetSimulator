@@ -1,9 +1,9 @@
-﻿using VirtualPetSimulator.Actions.Interfaces;
+﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Actions;
 
@@ -12,47 +12,72 @@ public class SleepAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
-    private readonly PetActions sleepAction = PetActions.Sleep;
-    private int _sleepSpecified = AttributeValue.MAX;
+    private readonly ITimeService _timeService;
+    private readonly PetAction sleepAction = PetAction.Sleep;
+    private int _sleepValue;
 
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int sleepSpecified) : this(pet, validator, userCommunication)
-    {
-        _sleepSpecified = sleepSpecified;
-    }
-
-    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication)
+    public SleepAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int sleepValue)
     {
         _pet = pet;
         _validator = validator;
         _userCommunication = userCommunication;
+        _timeService = timeService;
+        _sleepValue = sleepValue;
     }
 
     public async Task<int> Execute()
     {
         _pet.CurrentAction = sleepAction;
-        var sleepMessage = $"{_pet.Name} is napping";
+        _userCommunication.SetDisplayMessage($"{_pet.Name} is napping");
         var oneSleep = 1;
         int amountSlept = 0;
 
-        if (!_validator.IsNonNegative(_sleepSpecified, nameof(_sleepSpecified)))
+        if (!_validator.Validate(_sleepValue, nameof(_sleepValue)))
         {
             return amountSlept;
         }
 
-        while (_pet.Energy < AttributeValue.MAX && _sleepSpecified > 0)
+        var tokenSource = new CancellationTokenSource();
+        var cancellationToken = tokenSource.Token;
+
+        try
         {
-            var operation = _userCommunication.RunOperation(oneSleep, sleepMessage, _pet.GetAsciiArt());
-            var progress = _userCommunication.ShowProgress(operation);
+            while (_pet.Energy < AttributeValue.MAX && _sleepValue > 0 && !cancellationToken.IsCancellationRequested)
+            {
+                var sleepDuration = oneSleep * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
+                var operation = _timeService.WaitForOperation(sleepDuration, cancellationToken);
 
-            _pet.ChangeEnergy(oneSleep);
-            amountSlept += oneSleep;
-            _sleepSpecified--;
+                _userCommunication.RenderScreen(_pet);
+                var progress = _userCommunication.ShowProgressAsync(operation);
 
-            await operation;
-            await progress;
+                var listenForCancel = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
+                listenForCancel.Start();
+
+                amountSlept += oneSleep;
+                _sleepValue--;
+
+                await operation;
+                await progress;
+
+                _pet.ChangeEnergy(oneSleep);
+            }
+            if (amountSlept > 4)
+            {
+                _pet.ChangeHappiness(6);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _pet.ChangeHappiness(-4);
+            _userCommunication.SetDisplayMessage($"{_pet.Name}'s nap has been rudely interupted... good luck.");
+            _userCommunication.RenderScreen(_pet);
+            await _timeService.WaitForOperation(2000);
+        }
+        finally
+        {
+            _userCommunication.SetDisplayMessageToOptions();
         }
 
-        _userCommunication.ActivityMessage = "";
         return amountSlept;
     }
 }

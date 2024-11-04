@@ -2,9 +2,9 @@
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
 using VirtualPetSimulator.Actions;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Actions;
 
@@ -13,8 +13,8 @@ public class SleepActionTests
     private Mock<IPet> _testPet;
     private Mock<IValidator> _validatorMock;
     private Mock<IUserCommunication> _userCommunicationMock;
+    private Mock<ITimeService> _timeServiceMock;
     private SleepAction _sleepAction;
-    private const int DEFAULT_SLEEP_VALUE = 1;
 
     [SetUp]
     public void SetUp()
@@ -22,18 +22,18 @@ public class SleepActionTests
         _testPet = new Mock<IPet>();
         _validatorMock = new Mock<IValidator>();
         _userCommunicationMock = new Mock<IUserCommunication>();
+        _timeServiceMock = new Mock<ITimeService>();
 
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.DEFAULT);
-        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
+        _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(true);
     }
 
     [Test]
     public async Task Execute_WhenNotTired_DoesNotSleep()
     {
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.MAX);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, AttributeValue.MAX);
 
         var amountSlept = _sleepAction.Execute();
 
@@ -44,7 +44,7 @@ public class SleepActionTests
     public async Task Execute_WhenNotTired_DoesNotCallChangeEnergy()
     {
         _testPet.Setup(x => x.Energy).Returns(AttributeValue.MAX);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, AttributeValue.MAX);
 
         await _sleepAction.Execute();
 
@@ -54,7 +54,7 @@ public class SleepActionTests
     [Test]
     public async Task Execute_WhenEnergyNotMax_CallsChangeEnergyCorrectTimes()
     {
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, AttributeValue.MAX);
         _testPet.SetupSequence(x => x.Energy)
             .Returns(AttributeValue.MAX - 2)
             .Returns(AttributeValue.MAX - 1)
@@ -71,7 +71,7 @@ public class SleepActionTests
     {
         var startingEnergy = 6;
         var expected = 4;
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, AttributeValue.MAX);
         _testPet.SetupSequence(x => x.Energy)
             .Returns(startingEnergy)
             .Returns(7)
@@ -92,7 +92,7 @@ public class SleepActionTests
     public async Task Execute_WhenSleepSpecifiedLessOrEqualToEnergyDeficit_SleepsForSpecifiedAmount(int energy, int sleepValue)
     {
         _testPet.Setup(x => x.Energy).Returns(energy);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, sleepValue);
         var expected = sleepValue;
 
         var amountSlept = _sleepAction.Execute();
@@ -109,7 +109,7 @@ public class SleepActionTests
         energy--; // so first Energy computes
         _testPet.Setup(x => x.Energy)
             .Returns(() => ++energy);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, sleepValue);
 
         var amountSlept = _sleepAction.Execute();
 
@@ -125,11 +125,11 @@ public class SleepActionTests
         energy--;
         _testPet.Setup(x => x.Energy)
             .Returns(() => ++energy);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, sleepValue);
 
         await _sleepAction.Execute();
 
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.Validate(It.Is<int>(val => val == sleepValue), It.IsAny<string>()), Times.Once());
     }
 
     [TestCase(9, 3, 1)]
@@ -141,12 +141,21 @@ public class SleepActionTests
     public async Task Execute_WhenSleeps_UserCommsCalledCorrectNumberOfTimes(int energy, int sleepValue, int expected)
     {
         energy--;
-        _testPet.Setup(x => x.Energy)
-            .Returns(() => ++energy);
-        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, sleepValue);
+        _testPet.Setup(x => x.Energy).Returns(() => ++energy);
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, sleepValue);
 
         await _sleepAction.Execute();
 
-        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(x => x == DEFAULT_SLEEP_VALUE), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expected));
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(x => x == AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS), It.IsAny<CancellationToken>()), Times.Exactly(expected));
+    }
+
+    [Test]
+    public async Task Execute_IfASleepCompleted_HappinessGetsGoodIncrease()
+    {
+        _sleepAction = new SleepAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, 10);
+
+        await _sleepAction.Execute();
+
+        _testPet.Verify(x => x.ChangeHappiness(It.Is<int>(val => val == 6)), Times.Once());
     }
 }

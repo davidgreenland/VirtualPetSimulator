@@ -2,9 +2,9 @@
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Services.Interfaces;
-using VirtualPetSimulator.Helpers.Interfaces;
 using Moq;
 using VirtualPetSimulator.Actions;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Tests.Actions;
 
@@ -13,6 +13,7 @@ public class EatActionTests
     private Mock<IPet> _testPet;
     private Mock<IValidator> _validatorMock;
     private Mock<IUserCommunication> _userCommunicationMock;
+    private Mock<ITimeService> _timeServiceMock;
     private EatAction _eatAction;
     private const int DEFAULT_FOOD_VALUE = 1;
 
@@ -22,19 +23,19 @@ public class EatActionTests
         _testPet = new Mock<IPet>();
         _validatorMock = new Mock<IValidator>();
         _userCommunicationMock = new Mock<IUserCommunication>();
+        _timeServiceMock = new Mock<ITimeService>();
 
         _testPet.Setup(pet => pet.Name).Returns("Simon");
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.DEFAULT);
-        _userCommunicationMock.Setup(mock => mock.RunOperation(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val >= 0), It.IsAny<string>())).Returns(true);
-        _validatorMock.Setup(x => x.IsNonNegative(It.Is<int>(val => val < 0), It.IsAny<string>())).Returns(false);
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(true);
+        _timeServiceMock.Setup(mock => mock.WaitForOperation(It.IsAny<int>())).Returns(Task.CompletedTask);
     }
 
     [Test]
     public async Task Execute_WhenNotHungry_NoFoodIsEaten()
     {
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.MIN);
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object);
 
         var portionsEaten = _eatAction.Execute();
 
@@ -45,7 +46,7 @@ public class EatActionTests
     public async Task Execute_WhenNotHungry_ChangeHungerIsNotCalled()
     {
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.MIN);
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object);
 
         await _eatAction.Execute();
 
@@ -56,7 +57,7 @@ public class EatActionTests
     public async Task Execute_WhenPetHasHungerAndNoFoodValueProvided_CallsChangeHungerWithDefault()
     {
         _testPet.Setup(x => x.Hunger).Returns(AttributeValue.MEDIUM);
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object);
 
         var portionsEaten = await _eatAction.Execute();
 
@@ -74,42 +75,53 @@ public class EatActionTests
     [TestCase(0, 23, 0)]
     public async Task Execute_WhenFeedAmountProvided_ReturnsCorrectPortionsEaten(int hunger, int foodValue, int expected)
     {
-        _testPet.Setup(x => x.Hunger).Returns(hunger);
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
+        hunger++;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
 
         var portionsEaten = _eatAction.Execute();
 
         Assert.That(await portionsEaten, Is.EqualTo(expected));
     }
 
-    [TestCase(1, -1)]
-    [TestCase(2, -2)]
-    [TestCase(4, -4)]
-    [TestCase(7, -6)]
-    [TestCase(11, -6)]
-    [TestCase(23, -6)]
-    public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue, int expected)
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(4)]
+    [TestCase(7)]
+    [TestCase(11)]
+    [TestCase(23)]
+    public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue)
     {
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
+        var hunger = AttributeValue.DEFAULT + 1;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+        var expected = Math.Min(AttributeValue.DEFAULT, foodValue);
 
         await _eatAction.Execute();
 
-        _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == expected)), Times.Once());
+        _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == -1)), Times.Exactly(expected));
     }
 
-    [TestCase(1, 1)]
-    [TestCase(2, 2)]
-    [TestCase(4, 4)]
-    [TestCase(7, 6)]
-    [TestCase(11, 6)]
-    [TestCase(23, 6)]
-    public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue, int expected)
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(4)]
+    [TestCase(7)]
+    [TestCase(11)]
+    [TestCase(23)]
+    public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue)
     {
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
+        var hunger = AttributeValue.DEFAULT + 1;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
+
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+        var expectedAmount = Math.Min(foodValue, AttributeValue.DEFAULT);
 
         await _eatAction.Execute();
 
-        _userCommunicationMock.Verify(x => x.RunOperation(It.Is<int>(val => val == expected), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS), It.IsAny<CancellationToken>()), Times.Exactly(expectedAmount));
     }
 
     [TestCase(3)]
@@ -119,10 +131,24 @@ public class EatActionTests
     [TestCase(108)]
     public async Task Execute_WhenFeedAmountProvided_CallsValidatorWithValue(int foodValue)
     {
-        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, foodValue);
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
 
         await _eatAction.Execute();
 
-        _validatorMock.Verify(x => x.IsNonNegative(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+        _validatorMock.Verify(x => x.Validate(It.Is<int>(val => val == foodValue), It.IsAny<string>()), Times.Once());
+    }
+
+    [TestCase(-1)]
+    [TestCase(-3)]
+    [TestCase(-10000)]
+    public async Task Execute_WhenFeedAmountNegative_DoesNotCallChangeHunger(int foodValue)
+    {
+        _validatorMock.Setup(x => x.Validate(It.IsAny<int>(), It.IsAny<string>())).Returns(false);
+
+        _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
+
+        await _eatAction.Execute();
+
+        _testPet.Verify(x => x.ChangeHunger(It.IsAny<int>()), Times.Never());
     }
 }

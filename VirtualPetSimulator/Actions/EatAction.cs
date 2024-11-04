@@ -1,9 +1,9 @@
-﻿using VirtualPetSimulator.Actions.Interfaces;
+﻿using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Helpers.Enumerations;
-using VirtualPetSimulator.Helpers.Interfaces;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
+using VirtualPetSimulator.Validators.Interfaces;
 
 namespace VirtualPetSimulator.Actions;
 
@@ -12,36 +12,67 @@ public class EatAction : IPetAction
     private readonly IPet _pet;
     private readonly IValidator _validator;
     private readonly IUserCommunication _userCommunication;
-    private readonly PetActions eatAction = PetActions.Eat;
-    public int FoodAmount { get; }
+    private readonly ITimeService _timeService;
+    private readonly PetAction eatAction = PetAction.Eat;
+    private int _foodAmount;
 
-    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, int foodAmount = 1)
+    public EatAction(IPet pet, IValidator validator, IUserCommunication userCommunication, ITimeService timeService, int foodAmount = 1)
     {
         _pet = pet;
         _validator = validator;
+        _timeService = timeService;
         _userCommunication = userCommunication;
-        FoodAmount = foodAmount;
+        _foodAmount = foodAmount;
     }
 
     public async Task<int> Execute()
     {
         _pet.CurrentAction = eatAction;
-        int portionsEaten;
-        if (!_validator.IsNonNegative(FoodAmount, nameof(FoodAmount)) || _pet.Hunger == AttributeValue.MIN)
+        var onePortion = 1;
+        int portionsEaten = 0;
+        if (!_validator.Validate(_foodAmount, nameof(_foodAmount)))
         {
-            portionsEaten = 0;
             return portionsEaten;
         }
 
-        portionsEaten = Math.Min(FoodAmount, _pet.Hunger);
-        var eatMessage = $"{_pet.Name} enjoying his food";
-        var eatingOperation = _userCommunication.RunOperation(portionsEaten, eatMessage, _pet.GetAsciiArt());
+        _userCommunication.SetDisplayMessage($"{_pet.Name} enjoying his food");
+        var tokenSource = new CancellationTokenSource();
+        var cancellationToken = tokenSource.Token;
 
-        _pet.ChangeHunger(-portionsEaten);
-        await _userCommunication.ShowProgress(eatingOperation);
-        await eatingOperation;
+        try
+        {
+            while (_pet.Hunger > AttributeValue.MIN && _foodAmount > 0 && !cancellationToken.IsCancellationRequested)
+            {
+                var eatDuration = onePortion * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
+                var operation = _timeService.WaitForOperation(eatDuration, cancellationToken);
 
-        _userCommunication.ActivityMessage = "";
+                _userCommunication.RenderScreen(_pet);
+                var progress = _userCommunication.ShowProgressAsync(operation);
+
+                var listenForKey = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
+                listenForKey.Start();
+
+                portionsEaten++;
+                _foodAmount--;
+
+                await operation;
+                await progress;
+
+                _pet.ChangeHunger(-onePortion);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _pet.ChangeHappiness(-3);
+            _userCommunication.SetDisplayMessage($"{_pet.Name}'s meal has been cruelly snatched away - Shame on you.");
+            _userCommunication.RenderScreen(_pet);
+            await _timeService.WaitForOperation(1400);
+        }
+        finally
+        {
+            _userCommunication.SetDisplayMessageToOptions();
+        }
+
         return portionsEaten;
     }
 }
