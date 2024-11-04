@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
-using VirtualPetSimulator.Services;
 using VirtualPetSimulator.Actions;
 using Moq;
 using VirtualPetSimulator.Actions.Enums;
+using VirtualPetSimulator.Services.AsciiArt;
 
 namespace VirtualPetSimulator.Tests.Services;
 

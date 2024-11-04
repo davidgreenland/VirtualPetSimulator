@@ -4,14 +4,15 @@ namespace VirtualPetSimulator.Services.Interfaces;
 
 public interface IUserCommunication
 {
-    public void SetDisplayMessageToOptions();
-    public void SetDisplayMessage(string message);
+    void SetArtService(IAsciiArtService asciiArtService);
+    void SetDisplayMessageToOptions();
+    void SetDisplayMessage(string message);
     void RenderScreen(IPet pet);
     void RenderAttributes(IPet pet);
     void RenderImage(IPet pet);
     void DisplaySoundAsync(IPet pet);
     string ReadInput(string input);
-    char GetUserChoice(string prompt);
+    char GetUserChoice();
     string GetOptions(Type options);
     Task ShowProgressAsync(Task task);
     void ClearScreen();

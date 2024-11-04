@@ -1,6 +1,5 @@
 ﻿using VirtualPetSimulator.Actions.Interfaces;
 using VirtualPetSimulator.Helpers;
-using VirtualPetSimulator.Services;
 
 namespace VirtualPetSimulator.Models;
 

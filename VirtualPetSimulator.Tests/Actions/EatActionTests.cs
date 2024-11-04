@@ -75,7 +75,9 @@ public class EatActionTests
     [TestCase(0, 23, 0)]
     public async Task Execute_WhenFeedAmountProvided_ReturnsCorrectPortionsEaten(int hunger, int foodValue, int expected)
     {
-        _testPet.Setup(x => x.Hunger).Returns(hunger);
+        hunger++;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
 
         var portionsEaten = _eatAction.Execute();
@@ -91,12 +93,15 @@ public class EatActionTests
     [TestCase(23)]
     public async Task Execute_WhenFeedAmountProvided_CallsChangeHungerCorrectly(int foodValue)
     {
+        var hunger = AttributeValue.DEFAULT + 1;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
-        var expected = -Math.Min(AttributeValue.DEFAULT, foodValue);
+        var expected = Math.Min(AttributeValue.DEFAULT, foodValue);
 
         await _eatAction.Execute();
 
-        _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == expected)), Times.Once());
+        _testPet.Verify(x => x.ChangeHunger(It.Is<int>(val => val == -1)), Times.Exactly(expected));
     }
 
     [TestCase(1)]
@@ -107,13 +112,16 @@ public class EatActionTests
     [TestCase(23)]
     public async Task Execute_WhenFeedAmountProvided_CallsUserCommsWithCorrectValue(int foodValue)
     {
+        var hunger = AttributeValue.DEFAULT + 1;
+        _testPet.Setup(x => x.Hunger)
+            .Returns(() => --hunger);
+
         _eatAction = new EatAction(_testPet.Object, _validatorMock.Object, _userCommunicationMock.Object, _timeServiceMock.Object, foodValue);
-        var amountEaten = Math.Min(foodValue, AttributeValue.DEFAULT);
-        var expected = amountEaten * AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS;
+        var expectedAmount = Math.Min(foodValue, AttributeValue.DEFAULT);
 
         await _eatAction.Execute();
 
-        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == expected), It.IsAny<CancellationToken>()), Times.Once());
+        _timeServiceMock.Verify(x => x.WaitForOperation(It.Is<int>(val => val == AttributeValue.DEFAULT_OPERATION_LENGTH_MILLISECONDS), It.IsAny<CancellationToken>()), Times.Exactly(expectedAmount));
     }
 
     [TestCase(3)]

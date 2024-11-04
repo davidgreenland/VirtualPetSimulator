@@ -50,8 +50,8 @@ public class SleepAction : IPetAction
                 _userCommunication.RenderScreen(_pet);
                 var progress = _userCommunication.ShowProgressAsync(operation);
 
-                var listenForKey = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
-                listenForKey.Start();
+                var listenForCancel = new Task(() => _userCommunication.ListenForKeyStroke(tokenSource, operation));
+                listenForCancel.Start();
 
                 amountSlept += oneSleep;
                 _sleepValue--;
@@ -60,6 +60,10 @@ public class SleepAction : IPetAction
                 await progress;
 
                 _pet.ChangeEnergy(oneSleep);
+            }
+            if (amountSlept > 4)
+            {
+                _pet.ChangeHappiness(6);
             }
         }
         catch (TaskCanceledException)

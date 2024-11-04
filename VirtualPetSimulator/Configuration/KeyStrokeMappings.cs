@@ -19,6 +19,7 @@ namespace VirtualPetSimulator.Configuration
             };
             PetTypes = new Dictionary<char, PetType> {
                 { 'C', PetType.Cat },
+                { 'B', PetType.Bear },
             };
             EatOptions = new Dictionary<char, EatOption> {
                 { 'M', EatOption.Meal },

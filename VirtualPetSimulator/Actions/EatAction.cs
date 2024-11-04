@@ -30,7 +30,7 @@ public class EatAction : IPetAction
         _pet.CurrentAction = eatAction;
         var onePortion = 1;
         int portionsEaten = 0;
-        if (!_validator.Validate(_foodAmount, nameof(_foodAmount)) || _pet.Hunger == AttributeValue.MIN)
+        if (!_validator.Validate(_foodAmount, nameof(_foodAmount)))
         {
             return portionsEaten;
         }
@@ -66,12 +66,11 @@ public class EatAction : IPetAction
             _pet.ChangeHappiness(-3);
             _userCommunication.SetDisplayMessage($"{_pet.Name}'s meal has been cruelly snatched away - Shame on you.");
             _userCommunication.RenderScreen(_pet);
-            await _timeService.WaitForOperation(2000);
+            await _timeService.WaitForOperation(1400);
         }
         finally
         {
             _userCommunication.SetDisplayMessageToOptions();
-            Console.WriteLine("Hello");
         }
 
         return portionsEaten;

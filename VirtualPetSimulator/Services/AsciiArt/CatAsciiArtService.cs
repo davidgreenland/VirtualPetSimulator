@@ -3,7 +3,7 @@ using VirtualPetSimulator.Actions.Enums;
 using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Services.Interfaces;
 
-namespace VirtualPetSimulator.Services;
+namespace VirtualPetSimulator.Services.AsciiArt;
 
 public class CatAsciiArtService : IAsciiArtService
 {
@@ -14,7 +14,7 @@ public class CatAsciiArtService : IAsciiArtService
             { PetAction.Sleep, "\r\n \r\n          |\\      _,,,---,,_\r\n    ZZZzz /,`.-'`'    -.  ;-;;,_\r\n         |,4-  ) )-,_. ,\\ (  `'-'\r\n        '---''(_/--'  `-'\\_)\r\n\r\n\r\n" },
             //{ PetAction.Sit, " /\\_/\\\r\n( o.o ) \r\n > ^ < )\r\n /   \\/ \r\n(\\|||/)"}
     };
-    private IDictionary<PetMood, string> _petMoodImages = new Dictionary<PetMood, string>() { 
+    private IDictionary<PetMood, string> _petMoodImages = new Dictionary<PetMood, string>() {
         { PetMood.Grumpy, "                               |        |\r\n                               |\\      /|\r\n                               | \\____/ |\r\n                               |  /\\/\\  |\r\n                              .'___  ___`.\r\n                             /  \\|/  \\|/  \\\r\n            _.--------------( ____ __ _____)\r\n         .-' \\  -. | | | | | \\ ----\\/---- /\r\n       .'\\  | | / \\` | | | |  `.  -'`-  .'\r\n      /`  ` ` '/ / \\ | | | | \\  `------'\\\r\n     /-  `-------.' `-----.       -----. `---.\r\n    (  / | | | |  )/ | | | )/ | | | | | ) | | )\r\n     `._________.'_____,,,/\\_______,,,,/_,,,,/  VK" },
         { PetMood.Happy, "                _                       \r\n                \\`*-.                   \r\n                 )  _`-.                \r\n                .  : `. .               \r\n                : _   '  \\              \r\n                ; *` _.   `*-._         \r\n                `-.-'          `-.      \r\n                  ;       `       `.    \r\n                  :.       .        \\   \r\n                  . \\  .   :   .-'   .  \r\n                  '  `+.;  ;  '      :  \r\n                  :  '  |    ;       ;-.\r\n                  ; '   : :`-:     _.`* ;\r\n          .*' /  .*' ; .*`- +'  `*'\r\n               `*-*   `*-*  `*-*'       "}
     };

@@ -25,10 +25,10 @@ public class VirtualPetApp
 
     public PetType ChoosePetType()
     {
-        _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator\n");
-        _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(PetType)));
-        var petChoice = SelectOptionByKey(_keyStrokeMappings.PetTypes, "Choose your pet: ");
-
+        var petOptions = _userCommunication.GetOptions(typeof(PetType));
+        _userCommunication.ShowMessage("Welcome to the Virtual Pet Simulator\n\nThese wonderful animals are available\n\n");
+        _userCommunication.ShowMessage(petOptions +"\nChoose your pet : ");
+        var petChoice = SelectOptionByKey(_keyStrokeMappings.PetTypes);
         return petChoice;
     }
 
@@ -42,16 +42,15 @@ public class VirtualPetApp
         bool running = true;
         PetAction userChoice;
 
-        var timer = new Task(() => _timeService.StartTimer(x => RunPetUpdate(pet)));
-        //var timer = _timeService.StartTimer(x => RunPetUpdate(pet));
-        timer.Start();
+        var timer = _timeService.StartTimer(x => RunPetUpdate(pet));
 
         while (running)
         {
+            _userCommunication.SetDisplayMessageToOptions();
             _userCommunication.RenderScreen(pet);
 
-            userChoice = SelectOptionByKey(_keyStrokeMappings.PetActions, "Choose an option: ");
-            var actionValue = GetAmount(pet, userChoice);
+            userChoice = SelectOptionByKey(_keyStrokeMappings.PetActions);
+            var actionValue = await GetAmountAsync(pet, userChoice);
 
             var petAction = _petActionFactory.CreatePetAction(pet, userChoice, actionValue);
             if (petAction != null)
@@ -67,15 +66,16 @@ public class VirtualPetApp
         }
     }
 
-    private int GetAmount(IPet pet, PetAction userChoice)
+    private async Task<int> GetAmountAsync(IPet pet, PetAction userChoice)
     {
         switch (userChoice)
         {
             case PetAction.Sleep:
                 return AttributeValue.MAX;
             case PetAction.Eat:
-                _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(EatOption)));
-                var mealChoice = SelectOptionByKey(_keyStrokeMappings.EatOptions, $"What are you going to give {pet.Name}: ");
+                _userCommunication.ShowMessage(_userCommunication.GetOptions(typeof(EatOption)) + $"What are you going to give {pet.Name}: ");
+                var mealChoice = await Task.Run(() => SelectOptionByKey(_keyStrokeMappings.EatOptions));
+
                 if (mealChoice == EatOption.Meal)
                 {
                     return 5;
@@ -99,7 +99,7 @@ public class VirtualPetApp
             var mood = pet.CurrentMood;
 
             PetUpdaterService.UpdatePetAttributes(pet);
-            _userCommunication.RenderScreen(pet);
+            _userCommunication.RenderAttributes(pet);
 
             if (pet.CurrentMood != mood)
             {
@@ -110,15 +110,15 @@ public class VirtualPetApp
         }
     }
 
-    private T SelectOptionByKey<T>(Dictionary<char, T> options, string prompt) where T : Enum
+    private T SelectOptionByKey<T>(Dictionary<char, T> options) where T : Enum
     {
         char userChoice;
         do
         {
-            userChoice = _userCommunication.GetUserChoice(prompt);
+            userChoice = _userCommunication.GetUserChoice();
         }
         while (!options.ContainsKey(userChoice));
-
+        Console.Write(options[userChoice] + "\n");
         return options[userChoice];
     }
 }

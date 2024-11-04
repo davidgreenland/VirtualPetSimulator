@@ -3,6 +3,7 @@ using NUnit.Framework;
 using VirtualPetSimulator.Actions;
 using VirtualPetSimulator.Actions.Enums;
 using VirtualPetSimulator.Factories;
+using VirtualPetSimulator.Helpers;
 using VirtualPetSimulator.Models;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
@@ -34,8 +35,9 @@ public class PetActionFactoryTests
     public void CreatePetAction_WhenGivenAValidAction_ShouldReturnCorrectAction()
     {
         PetAction actionType = PetAction.Play;
+        var funGame = 5;
 
-        var petAction = _actionFactory.CreatePetAction(_testPet.Object, actionType, _timerMock.Object);
+        var petAction = _actionFactory.CreatePetAction(_testPet.Object, actionType, funGame);
 
         Assert.That(petAction, Is.TypeOf<PlayAction>());
     }

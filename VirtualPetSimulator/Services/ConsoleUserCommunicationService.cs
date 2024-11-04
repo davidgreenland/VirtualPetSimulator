@@ -1,5 +1,4 @@
 ﻿using VirtualPetSimulator.Actions.Enums;
-using VirtualPetSimulator.Models.Enums;
 using VirtualPetSimulator.Models.Interfaces;
 using VirtualPetSimulator.Services.Interfaces;
 
@@ -8,17 +7,22 @@ namespace VirtualPetSimulator.Services;
 public class ConsoleUserCommunicationService : IUserCommunication
 {
     private readonly ITimeService _timeService;
-    private readonly IAsciiArtService _asciiArtService;
+
     private const int HEADER_SPACER = 15;
     private readonly string _applicationOptions;
-    public string DisplayMessage { get; private set; }
+    public string DisplayMessage { get; private set; } = string.Empty;
+    public IAsciiArtService AsciiArtService { get; private set; }
 
     public ConsoleUserCommunicationService(ITimeService timeService, IAsciiArtService asciiArtService)
     {
         _timeService = timeService;
-        _asciiArtService = asciiArtService;
+        AsciiArtService = asciiArtService;
         _applicationOptions = GetApplicationOptions();
-        DisplayMessage =  _applicationOptions;
+    }
+
+    public void SetArtService(IAsciiArtService asciiArtService)
+    {
+        AsciiArtService = asciiArtService;
     }
 
     public void RenderScreen(IPet pet)
@@ -49,11 +53,11 @@ public class ConsoleUserCommunicationService : IUserCommunication
     {
         if (pet.CurrentAction == PetAction.Sit)
         {
-            PrintColor($"{_asciiArtService.GetAsciiForMood(pet.CurrentMood)}\n", ConsoleColor.DarkGreen);
+            PrintColor($"{AsciiArtService.GetAsciiForMood(pet.CurrentMood)}\n", ConsoleColor.DarkGreen);
         }
         else
         {
-            PrintColor($"{_asciiArtService.GetAsciiForAction((pet.CurrentAction))}\n", ConsoleColor.DarkGreen);
+            PrintColor($"{AsciiArtService.GetAsciiForAction((pet.CurrentAction))}\n", ConsoleColor.DarkGreen);
         }
     }
 
@@ -91,7 +95,6 @@ public class ConsoleUserCommunicationService : IUserCommunication
     public string ReadInput(string prompt)
     {
         string? input;
-
         do
         {
             Console.Write(prompt);
@@ -104,7 +107,7 @@ public class ConsoleUserCommunicationService : IUserCommunication
 
     public void SetDisplayMessageToOptions()
     {
-        DisplayMessage = _applicationOptions;
+        DisplayMessage = $"{_applicationOptions}\n\nChoose an option: ";
     }
 
     public void SetDisplayMessage(string message)
@@ -146,13 +149,10 @@ public class ConsoleUserCommunicationService : IUserCommunication
         return petChoices;
     }
 
-
-
-    public char GetUserChoice(string prompt)
+    public char GetUserChoice()
     {
-        Console.Write(prompt);
-        var key = (char)Console.ReadKey(true).Key;
-        Console.WriteLine(Environment.NewLine);
+        var key = (char)Console.ReadKey(true).Key; // to do: add intercept: true when sorted
+
         return key;
     }
 
@@ -182,20 +182,24 @@ public class ConsoleUserCommunicationService : IUserCommunication
 
     public void WaitForUser() => Console.ReadKey();
 
-    public void ShowMessage(string message) => Console.WriteLine(message);
+    public void ShowMessage(string message) => Console.Write(message);
 
-    public void ListenForKeyStroke(CancellationTokenSource tokenSource, Task operation)
+    public async void ListenForKeyStroke(CancellationTokenSource tokenSource, Task operation)
     {
-        Console.WriteLine("Press spacebar to wake them");
+        Console.WriteLine("Press spacebar to interupt");
         ConsoleKeyInfo consoleKey;
         do
         {
-            consoleKey = Console.ReadKey();
-            if (consoleKey.Key == ConsoleKey.Spacebar)
+            if (Console.KeyAvailable)
             {
-                tokenSource.Cancel();
+                consoleKey = Console.ReadKey(intercept: true);
+                if (consoleKey.Key == ConsoleKey.Spacebar)
+                {
+                    tokenSource.Cancel();
+                }
             }
+            await _timeService.WaitForOperation(50);
         } 
-        while ((consoleKey.Key != ConsoleKey.Spacebar && !operation.IsCompleted));
+        while (!operation.IsCompleted);
     }
 }

@@ -14,6 +14,8 @@ public class PetFactory
         {
             case PetType.Cat:
                 return new CatPet(name, new MeowAction());
+            case PetType.Bear:
+                return new BearPet(name, new MeowAction());
             default:
                 throw new InvalidEnumArgumentException($"Pet Type {petType} is not implemented yet");
         }
